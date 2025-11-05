@@ -47,7 +47,7 @@ export PATH="$HOME/.anyenv/bin:$PATH"
 eval "$(anyenv init -)"
 
 # direnv
-eval "$(direnv hook bash)"
+eval "$(direnv hook zsh)"
 
 setopt auto_cd
 function history-all { history -E 1 }

@@ -103,12 +103,9 @@ main() {
   esac
 }
 
-main "$@"
-
 # デバッグ情報を出力
 if [ "${DEBUG:-}" = "1" ]; then
   debugPlatformInfo
 fi
 
-# メイン処理を実行
 main "$@"
