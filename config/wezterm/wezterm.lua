@@ -12,7 +12,6 @@ local config = wezterm.config_builder()
 -- フォント
 -- HackGen 系フォントの実ファミリー名差異に備えてフォールバックを列挙する。
 config.font = wezterm.font_with_fallback {
-  'HackGenNerd Console',
   'HackGen Console NF',
   'HackGenNerd',
   'JetBrains Mono',
@@ -52,7 +51,7 @@ config.keys = {
 }
 
 -- or, changing the font size and color scheme.
-config.font_size = 12
+config.font_size = 14
 config.color_scheme = 'AdventureTime'
 
 -- Finally, return the configuration to wezterm:
