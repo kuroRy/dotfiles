@@ -189,9 +189,9 @@ info "3. All configuration files are now XDG-compliant"
 
 # Brewfile のリンク（macOS想定だがクロスプラットフォームでも無害）
 BREWFILES_DIR="$(getDotfilesDir)/local/share/dotfiles/brewfiles"
-if [[ -f "$BREWFILES_DIR/Brewfile" ]]; then
-    ln -fnsv "$BREWFILES_DIR/Brewfile" "$HOME/.Brewfile"
-    success "~/.Brewfile symlinked to $BREWFILES_DIR/Brewfile"
+if [[ -f "$BREWFILES_DIR/.Brewfile" ]]; then
+    ln -fnsv "$BREWFILES_DIR/.Brewfile" "$HOME/.Brewfile"
+    success "~/.Brewfile symlinked to $BREWFILES_DIR/.Brewfile"
 else
-    info "Brewfile not found at $BREWFILES_DIR/Brewfile (will be generated on demand)"
+    info "Brewfile not found at $BREWFILES_DIR/.Brewfile (will be generated on demand)"
 fi

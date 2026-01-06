@@ -5,7 +5,7 @@ source ${SCRIPT_DIR}/common.sh
 
 
 BREWFILES_DIR="$(getDotfilesDir)/local/share/dotfiles/brewfiles"
-BREWFILE="$BREWFILES_DIR/Brewfile"
+BREWFILE="$BREWFILES_DIR/.Brewfile"
 
 require_macos() {
   if ! isRunningOnMac; then
@@ -16,7 +16,8 @@ require_macos() {
 
 ensure_brew() {
   if ! isHomebrewInstalled; then
-    error "Homebrewが未インストールです。先に 'make init' を実行してください。"
+    error "Homebrew is not installed"
+    error "Please run 'make init' first"
     exit 1
   fi
 }
@@ -42,16 +43,34 @@ status() {
 install_macos() {
   require_macos
   ensure_brew
-  
+
   if [ ! -f "$BREWFILE" ]; then
     error "Brewfile not found: $BREWFILE"
     error "Please create $BREWFILE or run 'make link' first"
     exit 1
   fi
   
-  info "Homebrewでインストールします (brew bundle --global)"
+  info "Installing packages with Homebrew (brew bundle --global)"
   brew bundle --global
-  success "macOSパッケージのインストールが完了しました"
+  success "Installation of macOS packages has completed"
+}
+
+dump_brewfile() {
+  require_macos
+  ensure_brew
+
+  info "Dumping installed packages to Brewfile"
+  brew bundle dump --file="$BREWFILE" --force
+
+  if [ -f "$BREWFILE" ]; then
+    local new_entries
+    new_entries=$(grep -c '^[^#[:space:]]' "$BREWFILE" 2>/dev/null || echo 0)
+    success "Brewfile created: $BREWFILE"
+    info "  entries: $new_entries"
+  else
+    error "Failed to create Brewfile"
+    exit 1
+  fi
 }
 
 main() {
@@ -59,9 +78,10 @@ main() {
   case "$cmd" in
     install) install_macos ;;
     status)  status ;;
+    dump)    dump_brewfile ;;
     *)
       error "不明なコマンド: $cmd"
-      echo "利用可能: install | status"
+      echo "利用可能: install | status | dump"
       exit 1
       ;;
   esac
