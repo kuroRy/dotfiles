@@ -95,6 +95,11 @@ if [[ -f "$DOTFILES_DIR/config/wezterm/wezterm.lua" ]]; then
     ln -fnsv "$DOTFILES_DIR/config/wezterm/wezterm.lua" "$XDG_CONFIG_HOME/wezterm/wezterm.lua"
 fi
 
+if [[ -f "$DOTFILES_DIR/config/cursor/settings.json" ]]; then
+    mkdir -p "$HOME/Library/Application Support/Cursor/User/"
+    ln -fnsv "$DOTFILES_DIR/config/cursor/settings.json" "$HOME/Library/Application Support/Cursor/User/settings.json"
+fi
+
 success "XDG configuration files linked"
 
 info "linking XDG data files"
