@@ -18,22 +18,40 @@ config.font = wezterm.font_with_fallback {
 }
 
 -- 背景の非透過率（1なら完全に透過させない）
-config.window_background_opacity = 0.80
+config.window_background_opacity = 0.75
+
+-- タイトルバーの削除
+config.window_decorations = "RESIZE"
+
+-- タブバーを背景と同じ色にする
+config.window_background_gradient = {
+  colors = { "#000000" },
+}
+
+-- アクティブタブに色をつける
+wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
+  local background = "#5c6d74"
+  local foreground = "#FFFFFF"
+
+  if tab.is_active then
+    background = "#ae8b2d"
+    foreground = "#FFFFFF"
+  end
+
+  local title = "   " .. wezterm.truncate_right(tab.active_pane.title, max_width - 1) .. "   "
+
+  return {
+    { Background = { Color = background } },
+    { Foreground = { Color = foreground } },
+    { Text = title },
+  }
+end)
 
 -- 背景のぼかし
 config.macos_window_background_blur = 20
 
 -- タイトルバーの非表示
 config.hide_tab_bar_if_only_one_tab = true
-
--- 最初からフルスクリーンで起動
-local mux = wezterm.mux
-wezterm.on("gui-startup", function(cmd)
-    local tab, pane, window = mux.spawn_window(cmd or {})
-    window:gui_window():toggle_fullscreen()
-end)
-
--- タブのフォントサイズ
 
 -- キーバインド
 config.keys = {
