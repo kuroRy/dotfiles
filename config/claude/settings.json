@@ -2,24 +2,31 @@
   "permissions": {
     "allow": [
       "Bash(npm test)",
-      "Bash(gh pr view:*)",
       "List(*)",
       "Fetch(https://*)",
       "Edit(*)",
       "Bash(git:*)",
-      "Bash(npm:*)",
       "Bash(ls:*)",
       "Bash(cat:*)",
       "Bash(mkdir:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(cp:*)",
+      "Bash(make test:*)",
+      "Bash(make:*)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(rg:*)",
+      "Bash(grep:*)",
+      "Bash(chmod:*)",
+      "Bash(docker compose:*)"
     ],
     "deny": [
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
       "Bash(rm:*)",
       "Bash(sudo:*)",
       "Read(.env.*)"
-    ]
-  }
-
+    ],
+    "defaultMode": "acceptEdits"
+  },
+  "model": "opus",
+  "language": "日本語"
 }
