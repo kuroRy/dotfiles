@@ -23,6 +23,24 @@ This document defines the project's rules, objectives, and progress management m
 - Each test case must verify specific inputs and expected outputs.
 - Keep mocks to a minimum and test in a way that closely resembles actual behavior.
 
+### No Hardcoding
+
+- **Never** hardcode values just to make tests pass.
+- Do not embed test-specific values (magic numbers) in production code.
+- Use environment variables or configuration files to properly separate test and production environments.
+
+### Test Implementation Principles
+
+- Follow [t-wada](https://github.com/twada)'s testing methodology.
+- Always test boundary values, edge cases, and error cases.
+- Focus on actual quality, not just coverage metrics.
+- Test case names must clearly describe what is being tested.
+
+### Pre-Implementation Checklist
+
+- Understand the feature specification correctly before writing tests.
+- If anything is unclear, ask the user instead of making assumptions or temporary implementations.
+
 ## Git Commit Message Format
 
 Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.
