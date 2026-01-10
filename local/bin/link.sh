@@ -95,9 +95,15 @@ if [[ -f "$DOTFILES_DIR/config/wezterm/wezterm.lua" ]]; then
     ln -fnsv "$DOTFILES_DIR/config/wezterm/wezterm.lua" "$XDG_CONFIG_HOME/wezterm/wezterm.lua"
 fi
 
+# Cursor configuration (macOS対応)
 if [[ -f "$DOTFILES_DIR/config/cursor/settings.json" ]]; then
-    mkdir -p "$HOME/Library/Application Support/Cursor/User/"
-    ln -fnsv "$DOTFILES_DIR/config/cursor/settings.json" "$HOME/Library/Application Support/Cursor/User/settings.json"
+    if isRunningOnMac; then
+        CURSOR_DIR="$HOME/Library/Application Support/Cursor/User"
+    else
+        CURSOR_DIR="$XDG_CONFIG_HOME/Cursor/User"
+    fi
+    mkdir -p "$CURSOR_DIR"
+    ln -fnsv "$DOTFILES_DIR/config/cursor/settings.json" "$CURSOR_DIR/settings.json"
 fi
 
 success "XDG configuration files linked"
