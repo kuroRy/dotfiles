@@ -97,26 +97,12 @@ if ! isRunningOnCI; then
     
     # .Brewfileの特別検証（brew bundle dump --global 対応）
     info "=== .Brewfile検証 ==="
-    if [ -f "${DOTFILES_DIR}/.Brewfile" ]; then
-        verify_symlink ".Brewfileのシンボリンク" "${HOME}/.Brewfile" "${DOTFILES_DIR}/.Brewfile"
-        
-        # 分離ファイルの存在確認
-        if [ -f "${DOTFILES_DIR}/.Brewfile.common" ]; then
-            success "✓ .Brewfile.common が存在します"
-        else
-            warning "⚠ .Brewfile.common が見つかりません"
-            VERIFY_FAILED=$((VERIFY_FAILED + 1))
-        fi
-        
-        if isRunningOnMac && [ -f "${DOTFILES_DIR}/.Brewfile.macos" ]; then
-            success "✓ .Brewfile.macos が存在します（macOS用）"
-        elif isRunningOnLinux && [ -f "${DOTFILES_DIR}/.packages.ubuntu" ]; then
-            success "✓ .packages.ubuntu が存在します（Ubuntu/Debian用）"
-        elif isRunningOnWindows && [ -f "${DOTFILES_DIR}/.packages.windows" ]; then
-            success "✓ .packages.windows が存在します（Windows用）"
-        fi
+    BREWFILES_DIR="${DOTFILES_DIR}/local/share/dotfiles/brewfiles"
+    if [ -f "${BREWFILES_DIR}/.Brewfile" ]; then
+        verify_symlink ".Brewfileのシンボリンク" "${HOME}/.Brewfile" "${BREWFILES_DIR}/.Brewfile"
+        success "✓ .Brewfile が存在します"
     else
-        warning "⚠ .Brewfileが見つかりません（make packages を実行してください）"
+        warning "⚠ .Brewfileが見つかりません（make link を実行してください）"
         VERIFY_FAILED=$((VERIFY_FAILED + 1))
     fi
 else

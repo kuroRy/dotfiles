@@ -10,8 +10,6 @@ else
   exit 0
 fi
 
-info "Edit defaults"
-
 # Dock
 ## Dockを自動的に非表示
 defaults write com.apple.dock autohide -bool true
