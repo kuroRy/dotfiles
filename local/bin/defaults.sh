@@ -80,9 +80,6 @@ defaults write com.apple.LaunchServices LSQuarantine -bool false
 # Dockアイコンのスクロールジェスチャーを有効にする
 defaults write com.apple.dock scroll-to-open -bool true
 
-# iTerm2の終了時に確認するか聞かれないようにする
-defaults write com.googlecode.iterm2 PromptOnQuit -bool false
-
 # 数字を常に半角にする
 defaults write com.apple.inputmethod.Kotoeri JIMPrefFullWidthNumeralCharactersKey -int 0
 
