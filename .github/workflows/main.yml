@@ -10,6 +10,26 @@ permissions:
   contents: read
 
 jobs:
+  # Shellcheck による静的解析
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Shellcheckをインストール
+        run: sudo apt-get install -y shellcheck
+
+      - name: Shellcheckを実行
+        run: |
+          echo "=== Shellcheck バージョン ==="
+          shellcheck --version
+          echo ""
+          echo "=== スクリプトを検証中 ==="
+          shellcheck -x -e SC1091 local/bin/*.sh
+          echo "✓ 全てのスクリプトがShellcheckを通過しました"
+
   # macOS テスト（Apple Silicon / M1）
   macos-arm-test:
     name: macOS テスト (Apple Silicon)

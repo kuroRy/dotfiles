@@ -18,6 +18,9 @@ brew: packages
 test:
 	local/bin/test.sh
 
+lint:
+	local/bin/lint.sh
+
 verify:
 	local/bin/verify.sh
 
