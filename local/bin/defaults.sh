@@ -86,6 +86,10 @@ defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool "false"
 ## スペルの訂正を無効にする
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool "false"
 
+## Mission ControlのショートカットをF3へ変更
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 32 "<dict><key>enabled</key><true/><key>value</key><dict><key>parameters</key><array><integer>65535</integer><integer>99</integer><integer>0</integer></array><key>type</key><string>standard</string></dict></dict>"
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 34 "<dict><key>enabled</key><true/><key>value</key><dict><key>parameters</key><array><integer>65535</integer><integer>99</integer><integer>131072</integer></array><key>type</key><string>standard</string></dict></dict>"
+
 for app in "Dock" \
   "Finder" \
   "SystemUIServer"; do
