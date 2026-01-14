@@ -7,7 +7,15 @@ local wezterm = require 'wezterm'
 -- This will hold the configuration.
 local config = wezterm.config_builder()
 
--- This is where you actually apply your config choices.
+
+-- 設定ファイルが変更されたら自動で再読み込みする
+config.automatically_reload_config = true
+
+-- scroll backline
+config.scrollback_lines = 3500
+
+-- IMEを有効にする
+config.use_ime = true
 
 -- フォント
 -- HackGen 系フォントの実ファミリー名差異に備えてフォールバックを列挙する。
