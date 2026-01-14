@@ -123,6 +123,12 @@ compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-"$ZSH_VERSION"
 # gradle
 export PATH="/opt/homebrew/opt/gradle@8/bin:$PATH"
 
+# carapace
+autoload -U compinit && compinit
+export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense' # optional
+zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
+source <(carapace _carapace)
+
 # alias
 alias t='tmux attach || tmux'
 alias ta='tmux attach -t'
