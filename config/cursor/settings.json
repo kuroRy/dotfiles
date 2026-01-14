@@ -116,5 +116,6 @@
   },
   "cursor.composer.shouldChimeAfterChatFinishes": true,
   "cursor.agent_layout_browser_beta_setting": true,
-  "git.confirmSync": false
+  "git.confirmSync": false,
+  "commentTranslate.targetLanguage": "ja"
 }
