@@ -1,0 +1,55 @@
+# zim モジュール定義
+# https://zimfw.sh/
+
+# ----------------
+# モジュールオプション
+# ----------------
+
+# 入力中のコマンドに基づいて履歴を検索するキーバインドを設定
+zstyle ':zim:input' double-dot-expand yes
+
+# ----------------
+# 組み込みモジュール
+# ----------------
+
+# ディレクトリ操作の改善（auto_cd, auto_pushdなど）
+zmodule environment
+# 補完システムの設定
+zmodule completion
+# Gitエイリアスと関数
+zmodule git
+# ユーティリティエイリアス
+zmodule utility
+
+# ----------------
+# テーマ
+# ----------------
+
+# Powerlevel10k
+zmodule romkatv/powerlevel10k --source powerlevel10k.zsh-theme
+
+# ----------------
+# 追加モジュール（外部）
+# ----------------
+
+# 入力候補のサジェスト
+zmodule zsh-users/zsh-autosuggestions
+# 追加の補完定義
+zmodule zsh-users/zsh-completions --fpath src
+# 履歴のサブストリング検索（↑↓キーで部分一致検索）
+zmodule zsh-users/zsh-history-substring-search
+
+# ----------------
+# 生産性向上
+# ----------------
+
+# fzfによるファジー検索（Ctrl+R強化）
+zmodule fzf
+# zoxide（高速ディレクトリジャンプ）
+zmodule kiesman99/zim-zoxide
+
+# ----------------
+# シンタックスハイライト（最後に読み込む）
+# ----------------
+
+zmodule zdharma-continuum/fast-syntax-highlighting

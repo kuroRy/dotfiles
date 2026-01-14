@@ -1,5 +1,4 @@
-# 一般オプション
-setopt auto_cd
+# 追加オプション（zimのenvironmentモジュールで基本設定済み）
 setopt no_beep
 
 # カスタム関数
