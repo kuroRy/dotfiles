@@ -1,1 +1,7 @@
 local/state/dotfiles/backups/**
+
+# Claude Code settings (個人環境依存の設定)
+.claude/settings.json
+
+# Skill binary files (Zipアーカイブ)
+*.skill
