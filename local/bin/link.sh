@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-source ${SCRIPT_DIR}/common.sh
+source "${SCRIPT_DIR}/common.sh"
 
 # dotfilesディレクトリを動的に取得
 DOTFILES_DIR="$(getDotfilesDir)"
@@ -48,13 +48,34 @@ if [[ -f "$DOTFILES_DIR/config/git/config" ]]; then
     ln -fnsv "$DOTFILES_DIR/config/git/config" "$XDG_CONFIG_HOME/git/config"
 fi
 
-# Claude configuration
+# Claude configuration (XDG_CONFIG_HOME supported since v1.0.28)
 if [[ -d "$DOTFILES_DIR/config/claude" ]]; then
-    mkdir -p "$HOME/.claude"
+    CLAUDE_CONFIG_DIR="$XDG_CONFIG_HOME/claude"
+    mkdir -p "$CLAUDE_CONFIG_DIR"
+
+    # Link non-skills items directly
     for claude_file in "$DOTFILES_DIR/config/claude"/*; do
-        # XDG unsupported
-        ln -fnsv "$claude_file" "$HOME/.claude/"
+        [[ -e "$claude_file" ]] || continue
+        local_name=$(basename "$claude_file")
+
+        # Skip skills directory (handled separately)
+        if [[ "$local_name" == "skills" ]]; then
+            continue
+        fi
+
+        ln -fnsv "$claude_file" "$CLAUDE_CONFIG_DIR/"
     done
+
+    # Link skills individually (allows coexistence with local skills)
+    if [[ -d "$DOTFILES_DIR/config/claude/skills" ]]; then
+        mkdir -p "$CLAUDE_CONFIG_DIR/skills"
+        for skill_dir in "$DOTFILES_DIR/config/claude/skills"/*; do
+            [[ -d "$skill_dir" ]] || continue
+            skill_name=$(basename "$skill_dir")
+            ln -fnsv "$skill_dir" "$CLAUDE_CONFIG_DIR/skills/"
+            info "Linked skill: $skill_name"
+        done
+    fi
 fi
 
 # iTerm2 configuration
@@ -169,6 +190,7 @@ if [[ ! -f "$XDG_CONFIG_HOME/zsh/.zshrc.local" ]] && [[ -f "$DOTFILES_DIR/config
     info "Created ~/.config/zsh/.zshrc.local from template"
     warning "Please edit ~/.config/zsh/.zshrc.local to customize your personal settings"
 else
+    # shellcheck disable=SC2088
     debug "~/.config/zsh/.zshrc.local already exists or template not found"
 fi
 
@@ -178,6 +200,7 @@ if [[ ! -f "$XDG_CONFIG_HOME/git/config.local" ]] && [[ -f "$DOTFILES_DIR/config
     info "Created ~/.config/git/config.local from template"
     warning "Please edit ~/.config/git/config.local with your Git user information"
 else
+    # shellcheck disable=SC2088
     debug "~/.config/git/config.local already exists or template not found"
 fi
 
@@ -202,6 +225,7 @@ info "3. All configuration files are now XDG-compliant"
 BREWFILES_DIR="$(getDotfilesDir)/local/share/dotfiles/brewfiles"
 if [[ -f "$BREWFILES_DIR/.Brewfile" ]]; then
     ln -fnsv "$BREWFILES_DIR/.Brewfile" "$HOME/.Brewfile"
+    # shellcheck disable=SC2088
     success "~/.Brewfile symlinked to $BREWFILES_DIR/.Brewfile"
 else
     info "Brewfile not found at $BREWFILES_DIR/.Brewfile (will be generated on demand)"

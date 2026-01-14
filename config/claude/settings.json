@@ -1,24 +1,24 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm test)",
       "List(*)",
       "Fetch(https://*)",
       "Edit(*)",
+      "Bash(npm:*)",
       "Bash(git:*)",
+      "Bash(gh:*)",
       "Bash(ls:*)",
       "Bash(cat:*)",
       "Bash(mkdir:*)",
       "Bash(mv:*)",
       "Bash(cp:*)",
-      "Bash(make test:*)",
       "Bash(make:*)",
       "Bash(tree:*)",
       "Bash(find:*)",
       "Bash(rg:*)",
       "Bash(grep:*)",
       "Bash(chmod:*)",
-      "Bash(docker compose:*)"
+      "Bash(docker:*)"
     ],
     "deny": [
       "Bash(rm:*)",
@@ -28,5 +28,8 @@
     "defaultMode": "acceptEdits"
   },
   "model": "opus",
-  "language": "日本語"
+  "language": "日本語",
+  "enabledPlugins": {
+    "example-skills@anthropic-agent-skills": true
+  }
 }
