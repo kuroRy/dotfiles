@@ -37,6 +37,11 @@ if [[ -f "$DOTFILES_DIR/config/zsh/.zshrc" ]]; then
     ln -fnsv "$DOTFILES_DIR/config/zsh/.zshrc" "$XDG_CONFIG_HOME/zsh/.zshrc"
 fi
 
+# .zimrc (zimモジュール定義)
+if [[ -f "$DOTFILES_DIR/config/zsh/.zimrc" ]]; then
+    ln -fnsv "$DOTFILES_DIR/config/zsh/.zimrc" "$XDG_CONFIG_HOME/zsh/.zimrc"
+fi
+
 # conf.d (モジュール化された設定ファイル)
 if [[ -d "$DOTFILES_DIR/config/zsh/conf.d" ]]; then
     ln -fnsv "$DOTFILES_DIR/config/zsh/conf.d" "$XDG_CONFIG_HOME/zsh/conf.d"
@@ -51,6 +56,12 @@ fi
 if [[ -f "$DOTFILES_DIR/config/git/config" ]]; then
     mkdir -p "$XDG_CONFIG_HOME/git"
     ln -fnsv "$DOTFILES_DIR/config/git/config" "$XDG_CONFIG_HOME/git/config"
+fi
+
+# Git global ignore
+if [[ -f "$DOTFILES_DIR/config/git/ignore" ]]; then
+    mkdir -p "$XDG_CONFIG_HOME/git"
+    ln -fnsv "$DOTFILES_DIR/config/git/ignore" "$XDG_CONFIG_HOME/git/ignore"
 fi
 
 # Claude configuration (XDG_CONFIG_HOME supported since v1.0.28)

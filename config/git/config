@@ -1,10 +1,51 @@
+[init]
+	defaultBranch = main
+
+[core]
+	editor = vim
+	pager = less -F -X -R
+	quotepath = false
+	excludesfile = ~/.config/git/ignore
+
+[fetch]
+	prune = true
+
+[pull]
+	rebase = true
+
+[push]
+	default = current
+	autoSetupRemote = true
+
+[diff]
+	algorithm = histogram
+	colorMoved = default
+
+[merge]
+	conflictstyle = diff3
+
+[rebase]
+	autosquash = true
+	autostash = true
+
 [alias]
 	st = status
 	cm = commit
 	co = checkout
 	br = branch
-[core]
-	editor = vim
+	sw = switch
+	rs = restore
+	unstage = reset HEAD --
+	discard = checkout --
+	amend = commit --amend --no-edit
+	last = log -1 HEAD
+	graph = log --oneline --graph --decorate --all
+	branches = branch -a
+	remotes = remote -v
+	stashes = stash list
+	wip = !git add -A && git commit -m 'WIP'
+	undo = reset --soft HEAD~1
+
 [include]
 	path = ~/.config/git/config.local
 	# Fallback for backward compatibility
