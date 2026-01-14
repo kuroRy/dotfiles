@@ -68,20 +68,22 @@ test_command_exists() {
     fi
 }
 
-# shellcheck disable=SC2329  # invoked indirectly via test_assert
-test_get_dotfiles_dir_no_cwd_change() {
-    local original_dir
-    original_dir="$(pwd)"
-
-    getDotfilesDir >/dev/null
-    [ "$(pwd)" = "$original_dir" ]
-}
-
 # プラットフォーム検出のテスト
 info "=== プラットフォーム検出テスト ==="
 test_assert "基本プラットフォーム検出" "getPlatformInfo"
 test_assert "Homebrewパス取得" "getHomebrewPath"
-test_assert "getDotfilesDirはcwdを変更しない" "test_get_dotfiles_dir_no_cwd_change"
+
+# getDotfilesDirがcwdを変更しないことを確認（直接テスト）
+TEST_COUNT=$((TEST_COUNT + 1))
+info "テスト ${TEST_COUNT}: getDotfilesDirはcwdを変更しない"
+original_dir="$(pwd)"
+getDotfilesDir >/dev/null
+if [ "$(pwd)" = "$original_dir" ]; then
+    success "✓ getDotfilesDirはcwdを変更しない"
+else
+    error "✗ getDotfilesDirはcwdを変更しない"
+    TEST_FAILED=$((TEST_FAILED + 1))
+fi
 
 # 基本コマンドの存在確認
 info "=== 基本コマンド存在確認 ==="
