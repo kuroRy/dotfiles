@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-source ${SCRIPT_DIR}/common.sh
+source "${SCRIPT_DIR}/common.sh"
 
 info "dotfilesテストを開始"
 debugPlatformInfo
@@ -68,10 +68,20 @@ test_command_exists() {
     fi
 }
 
+# shellcheck disable=SC2329  # invoked indirectly via test_assert
+test_get_dotfiles_dir_no_cwd_change() {
+    local original_dir
+    original_dir="$(pwd)"
+
+    getDotfilesDir >/dev/null
+    [ "$(pwd)" = "$original_dir" ]
+}
+
 # プラットフォーム検出のテスト
 info "=== プラットフォーム検出テスト ==="
 test_assert "基本プラットフォーム検出" "getPlatformInfo"
 test_assert "Homebrewパス取得" "getHomebrewPath"
+test_assert "getDotfilesDirはcwdを変更しない" "test_get_dotfiles_dir_no_cwd_change"
 
 # 基本コマンドの存在確認
 info "=== 基本コマンド存在確認 ==="

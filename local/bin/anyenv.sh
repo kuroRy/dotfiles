@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-source ${SCRIPT_DIR}/common.sh
+source "${SCRIPT_DIR}/common.sh"
 
 info "Setting up anyenv environment"
 debugPlatformInfo

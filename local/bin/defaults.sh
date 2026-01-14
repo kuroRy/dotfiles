@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-source ${SCRIPT_DIR}/common.sh
+source "${SCRIPT_DIR}/common.sh"
 
 if isRunningOnMac; then
   info "Edit defaults"
@@ -32,7 +32,7 @@ defaults write com.apple.screencapture "disable-shadow" -bool "true"
 if [[ ! -d "$HOME/Pictures/Screenshots" ]]; then
     mkdir -p "$HOME/Pictures/Screenshots"
 fi
-defaults write com.apple.screencapture "location" -string "~/Pictures/Screenshots"
+defaults write com.apple.screencapture "location" -string "$HOME/Pictures/Screenshots"
 ## 撮影時のサムネイル表示
 defaults write com.apple.screencapture "show-thumbnail" -bool "false"
 ## 保存形式

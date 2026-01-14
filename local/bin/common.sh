@@ -1,24 +1,27 @@
 #!/bin/bash
+# where: local/bin/common.sh
+# what: 共通ユーティリティ関数
+# why: 各スクリプトから再利用される処理を集約するため
 
 info () {
-  printf "\r  [ \033[00;34m..\033[0m ] $1\n"
+  printf "\r  [ \033[00;34m..\033[0m ] %s\n" "$1"
 }
 
 success () {
-  printf "\r\033[2K  [ \033[00;32mOK\033[0m ] $1\n"
+  printf "\r\033[2K  [ \033[00;32mOK\033[0m ] %s\n" "$1"
 }
 
 error () {
-  printf "\r\033[2K  [\033[0;31mERROR\033[0m] $1\n"
+  printf "\r\033[2K  [\033[0;31mERROR\033[0m] %s\n" "$1"
 }
 
 warning () {
-  printf "\r\033[2K  [\033[0;33mWARN\033[0m] $1\n"
+  printf "\r\033[2K  [\033[0;33mWARN\033[0m] %s\n" "$1"
 }
 
 debug () {
   if [ "${DEBUG:-}" = "1" ]; then
-    printf "\r  [ \033[00;90mDEBUG\033[0m ] $1\n"
+    printf "\r  [ \033[00;90mDEBUG\033[0m ] %s\n" "$1"
   fi
 }
 
@@ -75,7 +78,6 @@ getLinuxDistro () {
 # プラットフォーム情報を取得
 getPlatformInfo () {
   local platform=""
-  local arch="$(uname -m)"
   local distro=""
   
   if isRunningOnMac; then
@@ -155,9 +157,7 @@ installFontToWindows () {
   fi
   
   local windows_fonts_dir
-  windows_fonts_dir="$(getWindowsFontDir)"
-  
-  if [ $? -ne 0 ] || [ ! -d "$windows_fonts_dir" ]; then
+  if ! windows_fonts_dir="$(getWindowsFontDir)" || [ ! -d "$windows_fonts_dir" ]; then
     warning "Could not access Windows fonts directory"
     warning "Please install font manually:"
     warning "1. Download font to Windows"
@@ -203,7 +203,7 @@ isRunningOnCI () {
 getDotfilesDir () {
   if isRunningOnCI; then
     # CI環境では現在のディレクトリを使用
-    echo "$(pwd)"
+    pwd
   elif [ -n "${DOTFILES_DIR:-}" ]; then
     # 環境変数が設定されている場合
     echo "$DOTFILES_DIR"
@@ -212,7 +212,7 @@ getDotfilesDir () {
     echo "${HOME}/dotfiles"
   else
     # スクリプトの親ディレクトリを推測
-    echo "$(cd "$(dirname "$0")/.." && pwd)"
+    (cd "$(dirname "$0")/.." && pwd)
   fi
 }
 
@@ -433,7 +433,8 @@ checkPowerShell() {
 # Windows環境での winget 確認
 checkWinget() {
   if command -v winget >/dev/null 2>&1; then
-    local winget_version=$(winget --version 2>/dev/null || echo "unknown")
+    local winget_version
+    winget_version=$(winget --version 2>/dev/null || echo "unknown")
     success "winget is available (version: $winget_version)"
     return 0
   else
@@ -509,10 +510,11 @@ installHomebrew() {
     debug "Trying URL: $url"
     
     # 直接実行方式：curl の出力を直接 bash に渡す
+    # shellcheck disable=SC2086
     if /bin/bash -c "$(curl -fsSL --connect-timeout 30 --max-time 300 --retry 2 \
                       -H 'User-Agent: dotfiles-installer/1.0' \
                       -H 'Accept: text/plain, application/x-sh' \
-                      \"$url\")"; then
+                      "$url")"; then
       success "Homebrew installed successfully from: $url"
       
       # インストール確認
@@ -536,7 +538,7 @@ installHomebrew() {
       warning "Homebrew install failed from URL: $url (exit code: $exit_code)"
       
       # 最後の試行でない場合は継続
-      if [ $attempt -lt $max_attempts ]; then
+      if [ "$attempt" -lt "$max_attempts" ]; then
         info "Trying next URL..."
         sleep 3
       fi

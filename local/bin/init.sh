@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-source ${SCRIPT_DIR}/common.sh
+source "${SCRIPT_DIR}/common.sh"
 
 info "init"
 debugPlatformInfo
@@ -43,7 +43,7 @@ if isRunningOnMac || isRunningOnWSL || isRunningOnLinux; then
 			done
 			
 			# Apply for current session
-			eval "$($HOMEBREW_PATH/bin/brew shellenv)"
+			eval "$("$HOMEBREW_PATH"/bin/brew shellenv)"
 			success "Homebrew installed and configured"
 		else
 			error "Could not determine Homebrew path for platform: $(getPlatformInfo)"
@@ -104,7 +104,7 @@ elif isRunningOnWSL; then
 			info "CI environment detected - skipping shell change to zsh"
 		else
 			info "Switching shell to zsh..."
-			chsh -s $(which zsh)
+			chsh -s "$(which zsh)"
 		fi
 	fi
 
@@ -152,22 +152,18 @@ elif isRunningOnLinux; then
 	# ディストリビューション検出とパッケージインストール
 	DISTRO="$(getLinuxDistro)"
 	info "Detected Linux distribution: $DISTRO"
-	package_manager=""
 
 	if checkSudoAccess; then
 		case "$DISTRO" in
 			ubuntu|debian)
 				sudo apt-get update -qq || warning "Failed to update package list"
 				safePackageInstall "apt-get" "curl" "wget" "git" "build-essential" "zsh"
-				package_manager="dpkg"
 				;;
 			fedora|rhel|centos)
 				safePackageInstall "dnf" "curl" "wget" "git" "@development-tools" "zsh"
-				package_manager="dnf"
 				;;
 			arch)
 				safePackageInstall "pacman" "curl" "wget" "git" "base-devel" "zsh"
-				package_manager="pacman"
 				;;
 			*)
 				warning "Unknown distribution: $DISTRO"
@@ -188,7 +184,7 @@ elif isRunningOnLinux; then
 			info "CI environment detected - skipping shell change to zsh"
 		else
 			info "Switching shell to zsh..."
-			chsh -s $(which zsh)
+			chsh -s "$(which zsh)"
 		fi
 	fi
 	
