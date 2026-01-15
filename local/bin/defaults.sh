@@ -25,6 +25,9 @@ defaults write com.apple.dock "mru-spaces" -bool "false"
 defaults write com.apple.dock autohide-delay -float 0
 defaults write com.apple.dock autohide-time-modifier -float 0.5
 
+## 自動的な句読点を無効化
+defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
+
 # Screenshot
 ## 画像の影を無効化
 defaults write com.apple.screencapture "disable-shadow" -bool "true"
@@ -51,9 +54,9 @@ defaults write com.apple.LaunchServices LSQuarantine -bool "false"
 defaults write com.apple.finder WarnOnEmptyTrash -bool "false"
 
 # .DS_Store
-## .DS_Storeが作成されないようにする
+## .DS_Storeが作成されな ネットワーク、又はUSBメモリに.DS_Storeを作成しないいようにする
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
-defaults write com.apple.desktopservices DSDontWriteUSBStores -bool "true"
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
 # Feedback
 ## フィードバックを送信しない

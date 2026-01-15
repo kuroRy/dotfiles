@@ -1,4 +1,7 @@
 {
+  "env": {
+    "ENABLE_TOOL_SEARCH": "true"
+  },
   "permissions": {
     "allow": [
       "List(*)",
@@ -27,9 +30,9 @@
     ],
     "defaultMode": "acceptEdits"
   },
-  "model": "opus",
-  "language": "日本語",
   "enabledPlugins": {
-    "example-skills@anthropic-agent-skills": true
-  }
+    "example-skills@anthropic-agent-skills": true,
+    "serena@claude-plugins-official": true
+  },
+  "language": "日本語"
 }

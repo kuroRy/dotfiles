@@ -15,6 +15,9 @@ packages:
 # 後方互換性のため brew エイリアスを保持
 brew: packages
 
+brew-dump:
+	local/bin/packages.sh dump
+
 test:
 	local/bin/test.sh
 
