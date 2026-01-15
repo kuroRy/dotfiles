@@ -3,6 +3,82 @@ set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
 
+# =============================================================================
+# ヘルパー関数
+# =============================================================================
+
+# 単一ファイル/ディレクトリのシンボリックリンクを作成
+# Usage: link_file <source> <destination>
+link_file() {
+    local src="$1"
+    local dest="$2"
+
+    [[ -e "$src" ]] || return 0
+    mkdir -p "$(dirname "$dest")"
+    ln -fnsv "$src" "$dest"
+}
+
+# XDG_CONFIG_HOME への設定ファイルリンク（便利関数）
+# Usage: link_config <relative_path> [dest_relative_path]
+# Example: link_config "git/config"
+#          link_config "git/config" "git/config"
+link_config() {
+    local relative_path="$1"
+    local dest_path="${2:-$relative_path}"
+    local src="${DOTFILES_DIR}/config/${relative_path}"
+    local dest="${XDG_CONFIG_HOME}/${dest_path}"
+
+    link_file "$src" "$dest"
+}
+
+# ディレクトリ内のファイル/ディレクトリをリンク
+# Usage: link_dir_contents <src_dir> <dest_dir> [filter] [pattern]
+# filter: file (default), dir, all, exec
+# pattern: glob pattern (default: *)
+link_dir_contents() {
+    local src_dir="$1"
+    local dest_dir="$2"
+    local filter="${3:-file}"
+    local pattern="${4:-*}"
+
+    [[ -d "$src_dir" ]] || return 0
+    mkdir -p "$dest_dir"
+
+    for item in "$src_dir"/$pattern; do
+        [[ -e "$item" ]] || continue
+        case "$filter" in
+            file) [[ -f "$item" ]] || continue ;;
+            dir)  [[ -d "$item" ]] || continue ;;
+            exec) [[ -f "$item" && -x "$item" ]] || continue ;;
+            all)  ;;  # no filter
+        esac
+        ln -fnsv "$item" "$dest_dir/"
+    done
+}
+
+# テンプレートからローカル設定ファイルを作成（存在しない場合のみ）
+# Usage: setup_from_template <template> <target> <display_path>
+setup_from_template() {
+    local template="$1"
+    local target="$2"
+    local display_path="$3"
+
+    [[ -f "$template" ]] || return 0
+    if [[ -f "$target" ]]; then
+        debug "$display_path already exists"
+        return 0
+    fi
+
+    mkdir -p "$(dirname "$target")"
+    cp "$template" "$target"
+    info "Created $display_path from template"
+    warning "Please edit $display_path to customize your personal settings"
+}
+
+# =============================================================================
+# メイン処理
+# =============================================================================
+
 # dotfilesディレクトリを動的に取得
 DOTFILES_DIR="$(getDotfilesDir)"
 
@@ -21,48 +97,21 @@ mkdir -p "$XDG_STATE_HOME"
 mkdir -p "$XDG_CACHE_HOME"
 mkdir -p "$HOME/.local/bin"
 
+# =============================================================================
 # XDG Config Home のシンボリックリンク作成
+# =============================================================================
 info "linking XDG configuration files"
 
 # Zsh configuration
-mkdir -p "$XDG_CONFIG_HOME/zsh"
-
-# .zshenv (環境変数設定 - $HOMEに配置してZDOTDIRを設定)
-if [[ -f "$DOTFILES_DIR/config/zsh/.zshenv" ]]; then
-    ln -fnsv "$DOTFILES_DIR/config/zsh/.zshenv" "$HOME/.zshenv"
-fi
-
-# .zshrc (メイン設定ファイル)
-if [[ -f "$DOTFILES_DIR/config/zsh/.zshrc" ]]; then
-    ln -fnsv "$DOTFILES_DIR/config/zsh/.zshrc" "$XDG_CONFIG_HOME/zsh/.zshrc"
-fi
-
-# .zimrc (zimモジュール定義)
-if [[ -f "$DOTFILES_DIR/config/zsh/.zimrc" ]]; then
-    ln -fnsv "$DOTFILES_DIR/config/zsh/.zimrc" "$XDG_CONFIG_HOME/zsh/.zimrc"
-fi
-
-# conf.d (モジュール化された設定ファイル)
-if [[ -d "$DOTFILES_DIR/config/zsh/conf.d" ]]; then
-    ln -fnsv "$DOTFILES_DIR/config/zsh/conf.d" "$XDG_CONFIG_HOME/zsh/conf.d"
-fi
-
-# p10k
-if [[ -f "$DOTFILES_DIR/config/zsh/.p10k.zsh" ]]; then
-    ln -fnsv "$DOTFILES_DIR/config/zsh/.p10k.zsh" "$XDG_CONFIG_HOME/zsh/.p10k.zsh"
-fi
+link_file "$DOTFILES_DIR/config/zsh/.zshenv" "$HOME/.zshenv"
+link_config "zsh/.zshrc"
+link_config "zsh/.zimrc"
+link_config "zsh/conf.d"
+link_config "zsh/.p10k.zsh"
 
 # Git configuration
-if [[ -f "$DOTFILES_DIR/config/git/config" ]]; then
-    mkdir -p "$XDG_CONFIG_HOME/git"
-    ln -fnsv "$DOTFILES_DIR/config/git/config" "$XDG_CONFIG_HOME/git/config"
-fi
-
-# Git global ignore
-if [[ -f "$DOTFILES_DIR/config/git/ignore" ]]; then
-    mkdir -p "$XDG_CONFIG_HOME/git"
-    ln -fnsv "$DOTFILES_DIR/config/git/ignore" "$XDG_CONFIG_HOME/git/ignore"
-fi
+link_config "git/config"
+link_config "git/ignore"
 
 # Claude configuration (XDG_CONFIG_HOME supported since v1.0.28)
 if [[ -d "$DOTFILES_DIR/config/claude" ]]; then
@@ -92,26 +141,22 @@ if [[ -d "$DOTFILES_DIR/config/claude" ]]; then
             info "Linked skill: $skill_name"
         done
     fi
+
+    # mcp.json: ホームディレクトリにもリンク（後方互換性）
+    if [[ -f "$DOTFILES_DIR/config/claude/mcp.json" ]]; then
+        ln -fnsv "$DOTFILES_DIR/config/claude/mcp.json" "$HOME/.mcp.json"
+        info "Linked mcp.json to ~/.mcp.json for backward compatibility"
+    fi
 fi
 
 # iTerm2 configuration
-if [[ -f "$DOTFILES_DIR/config/iterm2/com.googlecode.iterm2.plist" ]]; then
-    mkdir -p "$XDG_CONFIG_HOME/iterm2"
-    # 下記を設定した後、iterm上で設定が必要
-    ln -fnsv "$DOTFILES_DIR/config/iterm2/com.googlecode.iterm2.plist" "$XDG_CONFIG_HOME/iterm2/com.googlecode.iterm2.plist"
-fi
+link_config "iterm2/com.googlecode.iterm2.plist"
 
 # tmux configuration
-if [[ -f "$DOTFILES_DIR/config/tmux/tmux.conf" ]]; then
-    mkdir -p "$XDG_CONFIG_HOME/tmux"
-    ln -fnsv "$DOTFILES_DIR/config/tmux/tmux.conf" "$XDG_CONFIG_HOME/tmux/tmux.conf"
-fi
+link_config "tmux/tmux.conf"
 
 # act configuration
-if [[ -f "$DOTFILES_DIR/config/act/actrc" ]]; then
-    mkdir -p "$XDG_CONFIG_HOME/act"
-    ln -fnsv "$DOTFILES_DIR/config/act/actrc" "$XDG_CONFIG_HOME/act/actrc"
-fi
+link_config "act/actrc"
 
 # VSCode configuration (macOS対応)
 if [[ -d "$DOTFILES_DIR/config/vscode" ]]; then
@@ -120,17 +165,11 @@ if [[ -d "$DOTFILES_DIR/config/vscode" ]]; then
     else
         VSCODE_DIR="$HOME/.vscode"
     fi
-    mkdir -p "$VSCODE_DIR"
-    for vscode_file in "$DOTFILES_DIR/config/vscode"/*.json; do
-        [[ -f "$vscode_file" ]] || continue
-        ln -fnsv "$vscode_file" "$VSCODE_DIR/"
-    done
+    link_dir_contents "$DOTFILES_DIR/config/vscode" "$VSCODE_DIR" "file" "*.json"
 fi
 
-if [[ -f "$DOTFILES_DIR/config/wezterm/wezterm.lua" ]]; then
-    mkdir -p "$XDG_CONFIG_HOME/wezterm"
-    ln -fnsv "$DOTFILES_DIR/config/wezterm/wezterm.lua" "$XDG_CONFIG_HOME/wezterm/wezterm.lua"
-fi
+# wezterm configuration
+link_config "wezterm/wezterm.lua"
 
 # Cursor configuration (macOS対応)
 if [[ -f "$DOTFILES_DIR/config/cursor/settings.json" ]]; then
@@ -139,90 +178,65 @@ if [[ -f "$DOTFILES_DIR/config/cursor/settings.json" ]]; then
     else
         CURSOR_DIR="$XDG_CONFIG_HOME/Cursor/User"
     fi
-    mkdir -p "$CURSOR_DIR"
-    ln -fnsv "$DOTFILES_DIR/config/cursor/settings.json" "$CURSOR_DIR/settings.json"
+    link_file "$DOTFILES_DIR/config/cursor/settings.json" "$CURSOR_DIR/settings.json"
 fi
 
 success "XDG configuration files linked"
 
+# =============================================================================
+# XDG Data Home のシンボリックリンク作成
+# =============================================================================
 info "linking XDG data files"
 
 # Brewfiles
-if [[ -d "$DOTFILES_DIR/local/share/dotfiles/brewfiles" ]]; then
-    mkdir -p "$XDG_DATA_HOME/dotfiles/brewfiles"
-    for brewfile in "$DOTFILES_DIR/local/share/dotfiles/brewfiles"/*; do
-        if [[ -f "$brewfile" ]]; then
-            ln -fnsv "$brewfile" "$XDG_DATA_HOME/dotfiles/brewfiles/"
-        fi
-    done
-fi
+link_dir_contents "$DOTFILES_DIR/local/share/dotfiles/brewfiles" "$XDG_DATA_HOME/dotfiles/brewfiles" "file"
 
 # Package files
-if [[ -d "$DOTFILES_DIR/local/share/dotfiles/packages" ]]; then
-    mkdir -p "$XDG_DATA_HOME/dotfiles/packages"
-    for package_file in "$DOTFILES_DIR/local/share/dotfiles/packages"/*; do
-        if [[ -f "$package_file" ]]; then
-            ln -fnsv "$package_file" "$XDG_DATA_HOME/dotfiles/packages/"
-        fi
-    done
-fi
+link_dir_contents "$DOTFILES_DIR/local/share/dotfiles/packages" "$XDG_DATA_HOME/dotfiles/packages" "file"
 
 success "XDG data files linked"
 
+# =============================================================================
 # XDG State Home のシンボリックリンク作成
+# =============================================================================
 info "linking XDG state files"
 
 # Backup files
-if [[ -d "$DOTFILES_DIR/local/state/dotfiles" ]]; then
-    mkdir -p "$XDG_STATE_HOME/dotfiles"
-    for state_item in "$DOTFILES_DIR/local/state/dotfiles"/*; do
-        if [[ -e "$state_item" ]]; then
-            ln -fnsv "$state_item" "$XDG_STATE_HOME/dotfiles/"
-        fi
-    done
-fi
+link_dir_contents "$DOTFILES_DIR/local/state/dotfiles" "$XDG_STATE_HOME/dotfiles" "all"
 
 success "XDG state files linked"
 
+# =============================================================================
 # Executable scripts
+# =============================================================================
 info "linking executable scripts"
 
-if [[ -d "$DOTFILES_DIR/local/bin" ]]; then
-    for script in "$DOTFILES_DIR/local/bin"/*; do
-        if [[ -f "$script" && -x "$script" ]]; then
-            ln -fnsv "$script" "$HOME/.local/bin/"
-        fi
-    done
-fi
+link_dir_contents "$DOTFILES_DIR/local/bin" "$HOME/.local/bin" "exec"
 
 success "executable scripts linked"
 
-# テンプレートからローカル設定ファイルを作成（存在しない場合）
+# =============================================================================
+# テンプレートからローカル設定ファイルを作成
+# =============================================================================
 info "setting up local configuration files"
 
-# .zshrc.localのセットアップ
-if [[ ! -f "$XDG_CONFIG_HOME/zsh/.zshrc.local" ]] && [[ -f "$DOTFILES_DIR/config/zsh/.zshrc.local.template" ]]; then
-    cp "$DOTFILES_DIR/config/zsh/.zshrc.local.template" "$XDG_CONFIG_HOME/zsh/.zshrc.local"
-    info "Created ~/.config/zsh/.zshrc.local from template"
-    warning "Please edit ~/.config/zsh/.zshrc.local to customize your personal settings"
-else
-    # shellcheck disable=SC2088
-    debug "~/.config/zsh/.zshrc.local already exists or template not found"
-fi
+# shellcheck disable=SC2088
+setup_from_template \
+    "$DOTFILES_DIR/config/zsh/.zshrc.local.template" \
+    "$XDG_CONFIG_HOME/zsh/.zshrc.local" \
+    "~/.config/zsh/.zshrc.local"
 
-# .gitconfig.localのセットアップ
-if [[ ! -f "$XDG_CONFIG_HOME/git/config.local" ]] && [[ -f "$DOTFILES_DIR/config/git/config.local.template" ]]; then
-    cp "$DOTFILES_DIR/config/git/config.local.template" "$XDG_CONFIG_HOME/git/config.local"
-    info "Created ~/.config/git/config.local from template"
-    warning "Please edit ~/.config/git/config.local with your Git user information"
-else
-    # shellcheck disable=SC2088
-    debug "~/.config/git/config.local already exists or template not found"
-fi
+# shellcheck disable=SC2088
+setup_from_template \
+    "$DOTFILES_DIR/config/git/config.local.template" \
+    "$XDG_CONFIG_HOME/git/config.local" \
+    "~/.config/git/config.local"
 
 success "local configuration setup complete"
 
-# XDG環境変数の設定を確認
+# =============================================================================
+# 環境変数の確認と完了メッセージ
+# =============================================================================
 info "XDG Base Directory environment variables:"
 info "  XDG_CONFIG_HOME: $XDG_CONFIG_HOME"
 info "  XDG_DATA_HOME: $XDG_DATA_HOME"
@@ -231,7 +245,6 @@ info "  XDG_CACHE_HOME: $XDG_CACHE_HOME"
 
 success "XDG-compliant dotfiles linking complete"
 
-# 後続の作業についてのメッセージ
 info "Next steps:"
 info "1. Restart your shell to apply XDG environment variables"
 info "2. Configure applications to use XDG Base Directory Specification"
