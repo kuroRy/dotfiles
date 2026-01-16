@@ -33,5 +33,3 @@ ci: test
 packages-status:
 	@echo "現在のパッケージ管理状況を表示 (macOS)"
 	@local/bin/packages.sh status
-
-# Windows専用コマンド

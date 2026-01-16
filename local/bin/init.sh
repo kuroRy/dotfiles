@@ -18,8 +18,8 @@ if isRunningOnMac; then
 	success "Xcode Command Line Tools are installed"
 fi
 
-# Homebrewのインストール（macOS, WSL, Linuxのみ）
-if isRunningOnMac || isRunningOnWSL || isRunningOnLinux; then
+# Homebrewのインストール（macOS, Linuxのみ）
+if isRunningOnMac || isRunningOnLinux; then
 	if ! isHomebrewInstalled; then
 		info "Installing Homebrew"
 		
@@ -75,71 +75,6 @@ if isRunningOnMac; then
 		success "PowerLevel10k font already installed"
 	fi
 
-elif isRunningOnWSL; then
-	info "Setting up WSL environment"
-	
-	# sudo権限確認
-	if ! checkSudoAccess; then
-		warning "Some operations require sudo access"
-		warning "Please run 'sudo echo test' to authenticate, then retry"
-	fi
-	
-	# パッケージリスト更新
-	info "Updating package list"
-	if checkSudoAccess; then
-		sudo apt-get update -qq || warning "Failed to update package list"
-	fi
-	
-	# 必須パッケージのインストール
-	info "Installing essential packages"
-	if checkSudoAccess; then
-		safePackageInstall "apt-get" "curl" "wget" "git" "build-essential" "zsh"
-	else
-		warning "Cannot install packages without sudo access"
-		info "Please install manually: sudo apt-get install curl wget git build-essential"
-	fi
-
-	if isPackageInstalled "apt-get" "zsh"; then
-		if isRunningOnCI; then
-			info "CI environment detected - skipping shell change to zsh"
-		else
-			info "Switching shell to zsh..."
-			chsh -s "$(which zsh)"
-		fi
-	fi
-
-	# PowerLevel10k フォントの処理
-	info "Installing PowerLevel10k font for WSL"
-	FONT_URL="https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf"
-	FONT_NAME="MesloLGSNFRegular.ttf"
-	
-	# Windows への自動インストールを試行
-	if installFontToWindows "$FONT_URL" "$FONT_NAME"; then
-		success "PowerLevel10k font automatically installed to Windows"
-		info "Configure your terminal to use 'MesloLGS NF' font"
-	else
-		# フォールバック: 手動インストール用ダウンロード
-		warning "Automatic font installation failed"
-		FONT_FILE="$HOME/$FONT_NAME"
-		
-		if [ ! -f "$FONT_FILE" ]; then
-			if safeDownload "$FONT_URL" "$FONT_FILE" "PowerLevel10k font"; then
-				warning "Font downloaded to $FONT_FILE"
-				warning "Please install this font manually in Windows:"
-				warning "1. Open the font file in Windows Explorer"
-				warning "2. Right-click and select 'Install'"
-				warning "3. Configure your terminal to use 'MesloLGS NF' font"
-			else
-				warning "Failed to download font"
-				info "You can download manually from: $FONT_URL"
-			fi
-		else
-			info "Font already downloaded to $FONT_FILE"
-		fi
-	fi
-	
-	success "WSL environment setup complete"
-
 elif isRunningOnLinux; then
 	info "Setting up Linux environment"
 	
@@ -190,52 +125,9 @@ elif isRunningOnLinux; then
 	
 	success "Linux environment setup complete"
 
-elif isRunningOnWindows; then
-	info "Setting up Windows environment"
-	
-	# PowerShell確認
-	checkPowerShell || warning "PowerShell not available - some features may not work"
-	
-	# winget確認
-	checkWinget || warning "winget not available - package management may not work"
-	
-	# PowerLevel10k フォントインストール
-	info "Installing PowerLevel10k font for Windows"
-	FONT_URL="https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf"
-	FONT_NAME="MesloLGSNFRegular.ttf"
-	
-	if installWindowsFont "$FONT_URL" "$FONT_NAME" "PowerLevel10k (MesloLGS NF)"; then
-		info "Font installation completed"
-	else
-		warning "Font installation failed"
-		info "You can download manually from: $FONT_URL"
-	fi
-	
-	# 開発用ツールの確認
-	info "Checking development tools"
-	if command -v git >/dev/null 2>&1; then
-		success "Git is available"
-	else
-		warning "Git not found"
-		info "Please install Git from: https://git-scm.com/"
-		info "Or use: winget install Git.Git"
-	fi
-	
-	if command -v curl >/dev/null 2>&1; then
-		success "curl is available"
-	else
-		info "curl not found (optional)"
-		info "You can install it via: winget install cURL.cURL"
-	fi
-	
-	success "Windows environment setup complete"
-	info "Next steps:"
-	info "1. Configure your terminal to use 'MesloLGS NF' font"
-	info "2. Run 'make packages' to install additional software"
-
 else
 	error "Unsupported platform: $(getPlatformInfo)"
-	warning "Supported platforms: macOS, WSL2, Linux, Windows"
+	warning "Supported platforms: macOS, Linux"
 	info "Please check your platform detection or report this issue"
 	exit 1
 fi

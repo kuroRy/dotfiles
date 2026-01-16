@@ -2,12 +2,12 @@
 # dotfiles
 
 XDG Base Directory Specification に準拠したマルチプラットフォーム対応の dotfiles です。
-macOS / WSL2 / Linux / Windows をサポートし、開発環境を一貫して構築できます。
+macOS / Linux をサポートし、開発環境を一貫して構築できます。
 
 ## 特徴
 
 - **XDG 準拠**: 設定ファイルを `~/.config/` 配下に集約し、ホームディレクトリをクリーンに保つ
-- **マルチプラットフォーム**: macOS (Intel/Apple Silicon)、WSL2、Linux (Ubuntu/Fedora/Arch)、Windows に対応
+- **マルチプラットフォーム**: macOS (Intel/Apple Silicon)、Linux (Ubuntu/Fedora/Arch) に対応
 - **タスク駆動**: Make ターゲットで初期化・リンク・パッケージ導入を自動化
 - **CI 検証**: GitHub Actions で macOS/Ubuntu の両環境をテスト
 - **Docker 検証**: ローカルで Ubuntu 22.04 環境を再現可能

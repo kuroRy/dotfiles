@@ -95,15 +95,10 @@ if isRunningOnMac; then
     info "=== macOS固有テスト ==="
     test_command_exists "brew" "brew"
     test_assert "Xcode Command Line Tools" "xcode-select -p"
-elif isRunningOnWSL || isRunningOnLinux; then
-    info "=== Linux/WSL固有テスト ==="
+elif isRunningOnLinux; then
+    info "=== Linux固有テスト ==="
     test_command_exists "curl" "curl"
     test_command_exists "wget" "wget"
-    
-    if isRunningOnWSL; then
-        info "=== WSL固有テスト ==="
-        test_assert "Windowsファイルシステムアクセス" "[ -d '/mnt/c' ] || [ -d '/c' ]"
-    fi
 fi
 
 # dotfilesの基本構造テスト

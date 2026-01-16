@@ -30,19 +30,8 @@ isRunningOnMac () {
   [ "$(uname)" = "Darwin" ]
 }
 
-isRunningOnWSL () {
-  [ -f /proc/version ] && grep -q microsoft /proc/version
-}
-
 isRunningOnLinux () {
   [ "$(uname)" = "Linux" ]
-}
-
-isRunningOnWindows () {
-  case "$(uname -s)" in
-    CYGWIN*|MINGW*|MSYS*) return 0 ;;
-    *) return 1 ;;
-  esac
 }
 
 # 詳細なプラットフォーム検出
@@ -52,14 +41,6 @@ isRunningOnMacARM () {
 
 isRunningOnMacIntel () {
   isRunningOnMac && [ "$(uname -m)" = "x86_64" ]
-}
-
-isRunningOnWSL1 () {
-  isRunningOnWSL && [ ! -f /proc/sys/fs/binfmt_misc/WSLInterop ]
-}
-
-isRunningOnWSL2 () {
-  isRunningOnWSL && [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]
 }
 
 getLinuxDistro () {
@@ -87,18 +68,9 @@ getPlatformInfo () {
     elif isRunningOnMacIntel; then
       platform="macos-intel"
     fi
-  elif isRunningOnWSL; then
-    distro="$(getLinuxDistro)"
-    if isRunningOnWSL2; then
-      platform="wsl2-${distro}"
-    else
-      platform="wsl1-${distro}"
-    fi
   elif isRunningOnLinux; then
     distro="$(getLinuxDistro)"
     platform="linux-${distro}"
-  elif isRunningOnWindows; then
-    platform="windows"
   else
     platform="unknown"
   fi
@@ -114,7 +86,7 @@ getHomebrewPath () {
     else
       echo "/usr/local"
     fi
-  elif isRunningOnWSL || isRunningOnLinux; then
+  elif isRunningOnLinux; then
     echo "/home/linuxbrew/.linuxbrew"
   else
     return 1
@@ -124,74 +96,6 @@ getHomebrewPath () {
 # Homebrewがインストールされているかチェック
 isHomebrewInstalled () {
   command -v brew >/dev/null 2>&1
-}
-
-# Windowsのフォントディレクトリを取得（WSL用）
-getWindowsFontDir () {
-  if isRunningOnWSL; then
-    local windows_root
-    # WSL2では通常 /mnt/c でWindowsにアクセス可能
-    if [ -d "/mnt/c/Windows" ]; then
-      windows_root="/mnt/c"
-    elif [ -d "/c/Windows" ]; then
-      windows_root="/c"
-    else
-      return 1
-    fi
-    
-    # Windowsのフォントディレクトリパス
-    echo "${windows_root}/Windows/Fonts"
-  else
-    return 1
-  fi
-}
-
-# WSL2でWindowsにフォントをインストール
-installFontToWindows () {
-  local font_url="$1"
-  local font_name="$2"
-  
-  if ! isRunningOnWSL; then
-    error "This function is only for WSL environments"
-    return 1
-  fi
-  
-  local windows_fonts_dir
-  if ! windows_fonts_dir="$(getWindowsFontDir)" || [ ! -d "$windows_fonts_dir" ]; then
-    warning "Could not access Windows fonts directory"
-    warning "Please install font manually:"
-    warning "1. Download font to Windows"
-    warning "2. Right-click and select 'Install'"
-    return 1
-  fi
-  
-  # フォントファイルをダウンロード
-  local temp_font="/tmp/${font_name}"
-  info "Downloading font: $font_name"
-  
-  if curl -fsSL "$font_url" -o "$temp_font"; then
-    # Windowsフォントディレクトリにコピー
-    if cp "$temp_font" "$windows_fonts_dir/"; then
-      success "Font installed to Windows: $font_name"
-      rm -f "$temp_font"
-      
-      # フォントキャッシュを更新（試行）
-      info "Refreshing font cache (this may take a moment)"
-      if command -v powershell.exe >/dev/null 2>&1; then
-        powershell.exe -Command "& {Add-Type -AssemblyName System.Drawing; [System.Drawing.Text.InstalledFontCollection]::new().Dispose()}" 2>/dev/null || true
-      fi
-      
-      return 0
-    else
-      error "Failed to copy font to Windows directory"
-      warning "You may need to run with administrator privileges"
-      rm -f "$temp_font"
-      return 1
-    fi
-  else
-    error "Failed to download font from: $font_url"
-    return 1
-  fi
 }
 
 # CI環境の検出
@@ -224,9 +128,6 @@ debugPlatformInfo () {
   debug "Dotfiles directory: $(getDotfilesDir)"
   debug "Homebrew path: $(getHomebrewPath 2>/dev/null || echo 'N/A')"
   debug "Homebrew installed: $(isHomebrewInstalled && echo 'Yes' || echo 'No')"
-  if isRunningOnWSL; then
-    debug "Windows fonts dir: $(getWindowsFontDir 2>/dev/null || echo 'N/A')"
-  fi
 }
 
 # エラーハンドリング関数
@@ -414,75 +315,6 @@ safePackageInstall() {
   fi
 }
 
-# Windows環境での PowerShell 確認
-checkPowerShell() {
-  if command -v pwsh >/dev/null 2>&1; then
-    success "PowerShell Core (pwsh) is available"
-    return 0
-  elif command -v powershell >/dev/null 2>&1; then
-    success "Windows PowerShell is available"
-    return 0
-  else
-    warning "PowerShell is not available"
-    info "Please install PowerShell Core from:"
-    info "https://github.com/PowerShell/PowerShell"
-    return 1
-  fi
-}
-
-# Windows環境での winget 確認
-checkWinget() {
-  if command -v winget >/dev/null 2>&1; then
-    local winget_version
-    winget_version=$(winget --version 2>/dev/null || echo "unknown")
-    success "winget is available (version: $winget_version)"
-    return 0
-  else
-    warning "winget is not available"
-    info "Please install Windows Package Manager from:"
-    info "https://aka.ms/getwinget"
-    info "Or update to Windows 10 version 1809 or later / Windows 11"
-    return 1
-  fi
-}
-
-# Windows環境でのフォントインストール
-installWindowsFont() {
-  local font_url="$1"
-  local font_name="$2"
-  local description="${3:-$font_name}"
-  
-  info "Installing Windows font: $description"
-  
-  # ユーザーフォントディレクトリにダウンロード
-  local user_fonts_dir="$HOME/AppData/Local/Microsoft/Windows/Fonts"
-  local font_file="$user_fonts_dir/$font_name"
-  
-  # ディレクトリ作成
-  mkdir -p "$user_fonts_dir" 2>/dev/null || true
-  
-  # フォントダウンロード
-  if safeDownload "$font_url" "$font_file" "$description font"; then
-    success "Font downloaded to user directory: $font_file"
-    info "Please configure your terminal to use the font: $description"
-    return 0
-  else
-    # フォールバック: 一時ディレクトリにダウンロード
-    local temp_font="/tmp/$font_name"
-    if safeDownload "$font_url" "$temp_font" "$description font"; then
-      warning "Font downloaded to temporary location: $temp_font"
-      warning "Please install this font manually:"
-      warning "1. Double-click the font file to open it"
-      warning "2. Click 'Install' button"
-      warning "3. Configure your terminal to use the font"
-      return 0
-    else
-      error "Failed to download font: $description"
-      return 1
-    fi
-  fi
-}
-
 # Homebrewインストール（直接実行方式）
 installHomebrew() {
   info "Installing Homebrew"
@@ -564,6 +396,6 @@ installHomebrew() {
     warning "- Verify network connectivity in CI environment"
     warning "- Consider using a different base image or runner"
   fi
-  
+
   return 1
 }
