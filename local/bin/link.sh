@@ -118,29 +118,38 @@ if [[ -d "$DOTFILES_DIR/config/claude" ]]; then
     CLAUDE_CONFIG_DIR="$XDG_CONFIG_HOME/claude"
     mkdir -p "$CLAUDE_CONFIG_DIR"
 
-    # Link non-skills items directly
+    # Directories to link individually (allows coexistence with Claude-generated files)
+    individual_link_dirs=("skills" "scripts")
+
+    # Link non-individual items directly
     for claude_file in "$DOTFILES_DIR/config/claude"/*; do
         [[ -e "$claude_file" ]] || continue
         local_name=$(basename "$claude_file")
 
-        # Skip skills directory (handled separately)
-        if [[ "$local_name" == "skills" ]]; then
-            continue
-        fi
+        # Skip directories that need individual linking
+        for skip_dir in "${individual_link_dirs[@]}"; do
+            if [[ "$local_name" == "$skip_dir" ]]; then
+                continue 2
+            fi
+        done
 
         ln -fnsv "$claude_file" "$CLAUDE_CONFIG_DIR/"
     done
 
-    # Link skills individually (allows coexistence with local skills)
-    if [[ -d "$DOTFILES_DIR/config/claude/skills" ]]; then
-        mkdir -p "$CLAUDE_CONFIG_DIR/skills"
-        for skill_dir in "$DOTFILES_DIR/config/claude/skills"/*; do
-            [[ -d "$skill_dir" ]] || continue
-            skill_name=$(basename "$skill_dir")
-            ln -fnsv "$skill_dir" "$CLAUDE_CONFIG_DIR/skills/"
-            info "Linked skill: $skill_name"
+    # Link contents of individual directories
+    for dir_name in "${individual_link_dirs[@]}"; do
+        src_dir="$DOTFILES_DIR/config/claude/$dir_name"
+        dest_dir="$CLAUDE_CONFIG_DIR/$dir_name"
+
+        [[ -d "$src_dir" ]] || continue
+        mkdir -p "$dest_dir"
+
+        for item in "$src_dir"/*; do
+            [[ -e "$item" ]] || continue
+            ln -fnsv "$item" "$dest_dir/"
+            info "Linked $dir_name: $(basename "$item")"
         done
-    fi
+    done
 
     # mcp.json: ホームディレクトリにもリンク（後方互換性）
     if [[ -f "$DOTFILES_DIR/config/claude/mcp.json" ]]; then
