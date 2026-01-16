@@ -32,6 +32,9 @@ export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
 export AWS_SHARED_CREDENTIALS_FILE="$XDG_CONFIG_HOME/aws/credentials"
 export AWS_CONFIG_FILE="$XDG_CONFIG_HOME/aws/config"
 
+# Claude Code
+export CLAUDE_CONFIG_DIR="$XDG_CONFIG_HOME/claude"
+
 # Less
 [[ -d "$XDG_STATE_HOME/less" ]] || mkdir -p "$XDG_STATE_HOME/less"
 export LESSHISTFILE="$XDG_STATE_HOME/less/history"
