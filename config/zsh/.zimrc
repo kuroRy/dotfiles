@@ -22,13 +22,6 @@ zmodule git
 zmodule utility
 
 # ----------------
-# テーマ
-# ----------------
-
-# Powerlevel10k
-zmodule romkatv/powerlevel10k --source powerlevel10k.zsh-theme
-
-# ----------------
 # 追加モジュール（外部）
 # ----------------
 

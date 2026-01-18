@@ -107,7 +107,9 @@ link_file "$DOTFILES_DIR/config/zsh/.zshenv" "$HOME/.zshenv"
 link_config "zsh/.zshrc"
 link_config "zsh/.zimrc"
 link_config "zsh/conf.d"
-link_config "zsh/.p10k.zsh"
+
+# Starship prompt configuration
+link_config "starship/starship.toml" "starship.toml"
 
 # Git configuration
 link_config "git/config"
