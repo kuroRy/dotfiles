@@ -62,6 +62,8 @@ config.macos_window_background_blur = 20
 config.hide_tab_bar_if_only_one_tab = true
 
 -- キーバインド
+leader = { key = "s", mods = "CTRL", timeout_milliseconds = 2000 }
+
 config.keys = {
   -- ¥ではなく、バックスラッシュを入力する。
   {
@@ -74,11 +76,69 @@ config.keys = {
       mods = "ALT",
       action = wezterm.action.SendKey { key = '¥' }
   },
+
+  {
+    key = "z",
+    mods = "LEADER",
+    action = wezterm.action_callback(function(window, pane)
+      -- コピーモードに入る
+      window:perform_action(act.ActivateCopyMode, pane)
+
+      -- 直前のInputゾーン（最後のコマンド）に移動
+      window:perform_action(act.CopyMode({ MoveBackwardZoneOfType = "Input" }), pane)
+
+      -- セル選択モードを開始
+      window:perform_action(act.CopyMode({ SetSelectionMode = "Cell" }), pane)
+
+      -- 次のPromptゾーンまで選択（コマンドと出力を含む）
+      window:perform_action(act.CopyMode({ MoveForwardZoneOfType = "Prompt" }), pane)
+
+      -- 1行上に移動して行末へ（現在のプロンプト行を除外）
+      window:perform_action(act.CopyMode("MoveUp"), pane)
+      window:perform_action(act.CopyMode("MoveToEndOfLineContent"), pane)
+
+      -- クリップボードにコピー
+      window:perform_action(
+        act.Multiple({
+          { CopyTo = "ClipboardAndPrimarySelection" },
+          { Multiple = { "ScrollToBottom", { CopyMode = "Close" } } },
+        }),
+        pane
+      )
+
+      -- ステータスバーに一時的なステータスを表示
+      window:set_right_status("📋 Copied!")
+      -- 3秒後にクリア
+      wezterm.time.call_after(3, function()
+        window:set_right_status("")
+      end)
+    end),
+  },
 }
 
 -- or, changing the font size and color scheme.
 config.font_size = 14
 config.color_scheme = 'AdventureTime'
+
+-- ベル設定
+config.audible_bell = "SystemBeep"
+
+-- エスケープシーケンス通知の設定（フォーカス外のペインから通知を受け取る）
+config.notification_handling = "SuppressFromFocusedPane"
+config.visual_bell = {
+  fade_in_function = "EaseIn",
+  fade_in_duration_ms = 150,
+  fade_out_function = "EaseOut",
+  fade_out_duration_ms = 150,
+}
+config.colors = {
+  visual_bell = "#202020",
+}
+
+-- Claude Codeのタスク完了時にOS通知を送る
+wezterm.on('bell', function(window, pane)
+  window:toast_notification('Claude Code', 'Task completed', nil, 4000)
+end)
 
 -- Finally, return the configuration to wezterm:
 return config

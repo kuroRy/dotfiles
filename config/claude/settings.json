@@ -1,4 +1,18 @@
 {
+  "terminalBellOnComplete": true,
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '\\a'"
+          }
+        ]
+      }
+    ]
+  },
   "env": {
     "ENABLE_TOOL_SEARCH": "true"
   },
