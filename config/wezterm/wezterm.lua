@@ -11,8 +11,13 @@ local config = wezterm.config_builder()
 -- 設定ファイルが変更されたら自動で再読み込みする
 config.automatically_reload_config = true
 
+-- 設定ファイルが変更されたら通知する
+wezterm.on('window-config-reloaded', function(window, pane)
+  wezterm.toast_notification('wezterm', 'configuration reloaded!', nil, 4000)
+end)
+
 -- scroll backline
-config.scrollback_lines = 3500
+config.scrollback_lines = 1000000
 
 -- IMEを有効にする
 config.use_ime = true
@@ -114,17 +119,23 @@ config.keys = {
       end)
     end),
   },
+  -- フルスクリーンモードに切り替える
+  {
+		key = "f",
+		mods = "CTRL|CMD",
+		action = wezterm.action.ToggleFullScreen 
+	}
 }
 
 -- or, changing the font size and color scheme.
-config.font_size = 14
-config.color_scheme = 'AdventureTime'
+config.font_size = 16
+config.color_scheme = 'Solarized Darcula'
 
 -- ベル設定
 config.audible_bell = "SystemBeep"
 
 -- エスケープシーケンス通知の設定（フォーカス外のペインから通知を受け取る）
-config.notification_handling = "SuppressFromFocusedPane"
+config.notification_handling = "AlwaysShow"
 config.visual_bell = {
   fade_in_function = "EaseIn",
   fade_in_duration_ms = 150,
@@ -138,6 +149,10 @@ config.colors = {
 -- Claude Codeのタスク完了時にOS通知を送る
 wezterm.on('bell', function(window, pane)
   window:toast_notification('Claude Code', 'Task completed', nil, 4000)
+
+  if wezterm.target_triple:find("darwin") then
+    wezterm.background_child_process({ "afplay", "/System/Library/Sounds/Submarine.aiff" })
+  end
 end)
 
 -- Finally, return the configuration to wezterm:
