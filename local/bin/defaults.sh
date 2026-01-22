@@ -72,7 +72,7 @@ defaults write -g KeyRepeat -int 2
 defaults write com.apple.menuextra.battery ShowPercent -string "YES"
 
 ## マウス,トラックパットの速度を速くする
-defaults write -g com.apple.mouse.scaling -float 14
+defaults write -g com.apple.mouse.scaling -float 18
 defaults write -g com.apple.trackpad.scaling -float 10
 
 ## このアプリケーションを開いてもよろしいですか？のダイアログを無効化
