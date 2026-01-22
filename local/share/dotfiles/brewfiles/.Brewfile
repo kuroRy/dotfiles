@@ -97,7 +97,6 @@ cask "google-japanese-ime"
 cask "gyazo"
 cask "hiddenbar"
 cask "intellij-idea"
-cask "kindle"
 cask "kiro"
 cask "logi-options+"
 cask "microsoft-edge"
@@ -121,7 +120,6 @@ mas "GarageBand", id: 682658836
 mas "iMovie", id: 408981434
 mas "JustFocus", id: 1142151959
 mas "Keynote", id: 409183694
-mas "Kindle", id: 302584613
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
 vscode "aaron-bond.better-comments"
