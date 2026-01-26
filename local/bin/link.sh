@@ -18,7 +18,7 @@ link_file() {
     ln -fnsv "$src" "$dest"
 }
 
-# XDG_CONFIG_HOME への設定ファイルリンク（便利関数）
+# XDG_CONFIG_HOME への設定ファイルリンク
 # Usage: link_config <relative_path> [dest_relative_path]
 # Example: link_config "git/config"
 #          link_config "git/config" "git/config"
@@ -54,6 +54,36 @@ link_dir_contents() {
         esac
         ln -fnsv "$item" "$dest_dir/"
     done
+}
+
+# 実ディレクトリが存在する場合に確認プロンプトを表示してリンクを作成
+# Usage: link_with_dir_prompt <source> <destination>
+# Returns: 0 if linked or skipped, 1 if error
+link_with_dir_prompt() {
+    local src="$1"
+    local dest="$2"
+    local dest_name
+    dest_name=$(basename "$dest")
+
+    # 宛先が実ディレクトリ（シンボリックリンクではない）の場合
+    if [[ -d "$dest" && ! -L "$dest" ]]; then
+        warning "Real directory exists: $dest"
+        printf "  Delete and replace with symlink? [y/N]: "
+        read -r answer
+        case "$answer" in
+            [yY]|[yY][eE][sS])
+                rm -rf "$dest"
+                info "Deleted: $dest"
+                ln -fnsv "$src" "$dest"
+                ;;
+            *)
+                info "Skipped: $dest_name"
+                return 0
+                ;;
+        esac
+    else
+        ln -fnsv "$src" "$dest"
+    fi
 }
 
 # テンプレートからローカル設定ファイルを作成（存在しない場合のみ）
@@ -148,8 +178,9 @@ if [[ -d "$DOTFILES_DIR/config/claude" ]]; then
 
         for item in "$src_dir"/*; do
             [[ -e "$item" ]] || continue
-            ln -fnsv "$item" "$dest_dir/"
-            info "Linked $dir_name: $(basename "$item")"
+            item_name=$(basename "$item")
+            dest_path="$dest_dir/$item_name"
+            link_with_dir_prompt "$item" "$dest_path"
         done
     done
 
@@ -181,6 +212,23 @@ fi
 
 # wezterm configuration
 link_config "wezterm/wezterm.lua"
+
+# ghostty configuration
+link_config "ghostty/config"
+# macOS: Application Supportの設定ファイルを削除してシンボリックリンクに置き換え
+# (Raycast等から起動時にApplication Supportが優先されるため)
+if isRunningOnMac; then
+    GHOSTTY_APP_SUPPORT="$HOME/Library/Application Support/com.mitchellh.ghostty"
+    if [[ -d "$GHOSTTY_APP_SUPPORT" ]]; then
+        GHOSTTY_CONFIG="$GHOSTTY_APP_SUPPORT/config"
+        # 実ファイル（シンボリックリンクでない）が存在する場合は削除
+        if [[ -f "$GHOSTTY_CONFIG" && ! -L "$GHOSTTY_CONFIG" ]]; then
+            rm "$GHOSTTY_CONFIG"
+            info "Removed existing Ghostty config in Application Support"
+        fi
+        link_file "$DOTFILES_DIR/config/ghostty/config" "$GHOSTTY_CONFIG"
+    fi
+fi
 
 # Cursor configuration (macOS対応)
 if [[ -f "$DOTFILES_DIR/config/cursor/settings.json" ]]; then

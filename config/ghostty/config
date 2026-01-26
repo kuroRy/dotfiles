@@ -1,0 +1,24 @@
+font-size = 20
+font-feature = -calt
+font-feature = -liga
+font-shaping-break = cursor
+
+theme = "Solarized Osaka Night"
+window-padding-x = 4
+window-padding-y = 4
+cursor-style = bar
+cursor-style-blink = true
+
+# 新しいタブ/ウィンドウで作業ディレクトリを引き継ぐ
+window-inherit-working-directory = true
+
+# 最後のウィンドウを閉じてもアプリを終了しない
+quit-after-last-window-closed = false
+macos-option-as-alt = true
+
+# Cmd+`でターミナルを開く
+keybind = global:cmd+backquote=toggle_quick_terminal
+
+# クリップボード
+keybind = performable:ctrl+c=copy_to_clipboard
+right-click-action = copy-or-paste
