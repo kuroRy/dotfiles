@@ -31,7 +31,7 @@ config.font = wezterm.font_with_fallback {
 }
 
 -- 背景の非透過率（1なら完全に透過させない）
-config.window_background_opacity = 0.75
+config.window_background_opacity = 0.7
 
 -- タイトルバーの削除
 config.window_decorations = "RESIZE"
@@ -127,8 +127,7 @@ config.keys = {
 	}
 }
 
--- or, changing the font size and color scheme.
-config.font_size = 16
+config.font_size = 20
 config.color_scheme = 'Solarized Darcula'
 
 -- ベル設定
