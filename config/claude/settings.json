@@ -45,7 +45,9 @@
       "Bash(rg:*)",
       "Bash(grep:*)",
       "Bash(chmod:*)",
-      "Bash(docker:*)"
+      "Bash(docker:*)",
+      "Skill(skill-creator)",
+      "Bash(codex:*)"
     ],
     "deny": [
       "Bash(rm:*)",
