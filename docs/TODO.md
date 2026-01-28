@@ -6,13 +6,14 @@
 
 ### Zsh 設定
 
-- [ ] **zsh-history-substring-search のキーバインド設定**
+- [x] **zsh-history-substring-search のキーバインド設定**
   - ↑↓キーで部分一致履歴検索を有効化
-  - `conf.d/20-keybinds.zsh` に追加
+  - `conf.d/90-keybinds.zsh` に追加
 
-- [ ] **シェル起動時間プロファイリング機能**
+- [x] **シェル起動時間プロファイリング機能**
   - 起動が遅い場合の原因特定用
   - `zmodload zsh/zprof` を使った計測オプション
+  - 使用方法: `ZSH_PROFILE=1 zsh -i -c exit`
 
 ### Tmux 設定
 
@@ -21,13 +22,13 @@
   - Linux では `xclip` または `wl-copy` を使用
   - プラットフォーム検出による自動切り替え
 
-- [ ] **True Color サポートの追加**
+- [x] **True Color サポートの追加**
   ```tmux
   set -g default-terminal "tmux-256color"
   set -ag terminal-overrides ",xterm-256color:RGB"
   ```
 
-- [ ] **escape-time の最適化**
+- [x] **escape-time の最適化**
   - Vim/Neovim ユーザー向けに `set -sg escape-time 10`
 
 ### セキュリティ
@@ -51,7 +52,7 @@
   - 参考: https://mise.jdx.dev/
   - 移行スクリプトの作成
 
-- [ ] **kubectl 補完の遅延読み込み**
+- [x] **kubectl 補完の遅延読み込み**
   - 現在は起動時に毎回読み込み
   - 初回使用時に読み込むよう変更
 

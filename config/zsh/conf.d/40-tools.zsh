@@ -11,9 +11,13 @@ if [[ -d "$HOME/.anyenv" ]]; then
   rbenv() { anyenv; rbenv "$@" }
 fi
 
-# kubectl - 存在チェック付き
+# kubectl - 遅延読み込みで起動を高速化
 if command -v kubectl &>/dev/null; then
-  source <(kubectl completion zsh)
+  kubectl() {
+    unset -f kubectl
+    source <(command kubectl completion zsh)
+    kubectl "$@"
+  }
 fi
 
 # direnv

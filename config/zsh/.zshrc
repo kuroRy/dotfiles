@@ -11,6 +11,9 @@ done
 # Starship prompt initialization
 eval "$(starship init zsh)"
 
+# GitHub CLI
+export GITHUB_TOKEN=$(gh auth token)
+
 # シェル起動時間プロファイリング出力
 if [[ -n "$ZSH_PROFILE" ]]; then
   zprof

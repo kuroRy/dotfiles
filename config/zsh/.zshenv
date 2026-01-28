@@ -44,4 +44,3 @@ export CLAUDE_CONFIG_DIR="$XDG_CONFIG_HOME/claude"
 # Less
 [[ -d "$XDG_STATE_HOME/less" ]] || mkdir -p "$XDG_STATE_HOME/less"
 export LESSHISTFILE="$XDG_STATE_HOME/less/history"
-export GITHUB_TOKEN=$(gh auth token)
