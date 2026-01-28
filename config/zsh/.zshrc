@@ -10,3 +10,8 @@ done
 
 # Starship prompt initialization
 eval "$(starship init zsh)"
+
+# シェル起動時間プロファイリング出力
+if [[ -n "$ZSH_PROFILE" ]]; then
+  zprof
+fi

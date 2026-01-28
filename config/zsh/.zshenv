@@ -1,3 +1,9 @@
+# シェル起動時間プロファイリング
+# 使用方法: ZSH_PROFILE=1 zsh -i -c exit
+if [[ -n "$ZSH_PROFILE" ]]; then
+  zmodload zsh/zprof
+fi
+
 # XDG Base Directory
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
