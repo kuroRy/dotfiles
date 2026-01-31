@@ -26,6 +26,10 @@
   "env": {
     "ENABLE_TOOL_SEARCH": "true"
   },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.config/claude/scripts/statusline.sh"
+  },
   "permissions": {
     "allow": [
       "List(*)",
