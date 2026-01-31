@@ -10,3 +10,6 @@ alias tk='tmux kill-session -t'
 
 # docker
 alias dspa='docker system prune -a -f'
+
+# date
+alias date='date +"%Y-%m-%dT%H:%M:%S%z"'
