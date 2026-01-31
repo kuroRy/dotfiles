@@ -2,6 +2,7 @@
 set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
+setupErrorHandler "lint.sh"
 
 info "シェルスクリプトの静的解析を開始"
 

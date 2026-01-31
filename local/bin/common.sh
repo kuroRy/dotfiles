@@ -3,26 +3,64 @@
 # what: 共通ユーティリティ関数
 # why: 各スクリプトから再利用される処理を集約するため
 
+# =============================================================================
+# ログ出力
+# =============================================================================
+
+# ログの内部実装
+# DOTFILES_LOG_FILE: ログファイルパス（未設定時はファイル出力なし）
+# DOTFILES_LOG_FORMAT: "json" で JSON 形式、それ以外はテキスト形式
+_log() {
+  local level="$1"
+  local message="$2"
+  local timestamp
+  timestamp="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+  # ファイルログ出力
+  if [ -n "${DOTFILES_LOG_FILE:-}" ]; then
+    if [ "${DOTFILES_LOG_FORMAT:-text}" = "json" ]; then
+      printf '{"timestamp":"%s","level":"%s","message":"%s","script":"%s"}\n' \
+        "$timestamp" "$level" "$message" "$(basename "$0")" >> "$DOTFILES_LOG_FILE"
+    else
+      printf '[%s] [%-7s] %s\n' "$timestamp" "$level" "$message" >> "$DOTFILES_LOG_FILE"
+    fi
+  fi
+
+  # CI環境向け出力（GitHub Actions annotations）
+  if isRunningOnCI && [ "${GITHUB_ACTIONS:-}" = "true" ]; then
+    case "$level" in
+      ERROR)   echo "::error::$message" ;;
+      WARNING) echo "::warning::$message" ;;
+      *)       ;;
+    esac
+  fi
+}
+
 info () {
   printf "\r  [ \033[00;34m..\033[0m ] %s\n" "$1"
+  _log "INFO" "$1"
 }
 
 success () {
   printf "\r\033[2K  [ \033[00;32mOK\033[0m ] %s\n" "$1"
+  _log "SUCCESS" "$1"
 }
 
 error () {
   printf "\r\033[2K  [\033[0;31mERROR\033[0m] %s\n" "$1"
+  _log "ERROR" "$1"
 }
 
 warning () {
   printf "\r\033[2K  [\033[0;33mWARN\033[0m] %s\n" "$1"
+  _log "WARNING" "$1"
 }
 
 debug () {
   if [ "${DEBUG:-}" = "1" ]; then
     printf "\r  [ \033[00;90mDEBUG\033[0m ] %s\n" "$1"
   fi
+  _log "DEBUG" "$1"
 }
 
 # 基本的なプラットフォーム検出
@@ -130,7 +168,39 @@ debugPlatformInfo () {
   debug "Homebrew installed: $(isHomebrewInstalled && echo 'Yes' || echo 'No')"
 }
 
-# エラーハンドリング関数
+# =============================================================================
+# エラーハンドリング / クリーンアップ
+# =============================================================================
+
+# 一時ファイルのクリーンアップ用配列
+_CLEANUP_FILES=()
+
+# クリーンアップ対象の一時ファイルを登録
+registerCleanup() {
+  _CLEANUP_FILES+=("$1")
+}
+
+# クリーンアップ実行
+_runCleanup() {
+  for file in "${_CLEANUP_FILES[@]:-}"; do
+    if [ -f "$file" ]; then
+      rm -f "$file"
+      debug "Cleaned up: $file"
+    fi
+  done
+}
+
+# エラーハンドラ + クリーンアップの設定
+# Usage: setupErrorHandler [script_name]
+setupErrorHandler() {
+  local script_name="${1:-$(basename "$0")}"
+  trap '_runCleanup; error "'"$script_name"' failed at line $LINENO (exit code: $?)"' ERR
+  trap '_runCleanup' EXIT
+}
+
+# =============================================================================
+# ネットワーク / ダウンロード
+# =============================================================================
 
 # インターネット接続確認
 checkInternetConnection() {

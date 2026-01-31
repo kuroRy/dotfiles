@@ -2,6 +2,7 @@
 set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
+setupErrorHandler "verify.sh"
 
 info "dotfiles設定検証を開始"
 debugPlatformInfo

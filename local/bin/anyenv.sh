@@ -2,6 +2,7 @@
 set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
+setupErrorHandler "anyenv.sh"
 
 info "Setting up anyenv environment"
 debugPlatformInfo
@@ -309,7 +310,5 @@ main() {
     info "  <env> install <version> # Install specific version"
     info "  <env> global <version>  # Set global version"
 }
-
-trap 'error "anyenv setup failed at line $LINENO"' ERR
 
 main "$@"

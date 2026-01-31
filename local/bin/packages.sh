@@ -2,7 +2,7 @@
 set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
-
+setupErrorHandler "packages.sh"
 
 BREWFILES_DIR="$(getDotfilesDir)/local/share/dotfiles/brewfiles"
 BREWFILE="$BREWFILES_DIR/.Brewfile"
