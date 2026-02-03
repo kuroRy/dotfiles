@@ -72,9 +72,24 @@ defaults write -g KeyRepeat -int 2
 ## バッテリー残量を％表示
 defaults write com.apple.menuextra.battery ShowPercent -string "YES"
 
-## マウス,トラックパットの速度を速くする
+## マウス,トラックパッドの速度を速くする
 defaults write -g com.apple.mouse.scaling -float 18
 defaults write -g com.apple.trackpad.scaling -float 10
+
+# Trackpad
+## タップでクリック
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
+defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 0
+defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 0
+## 2本指タップで右クリック
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -bool true
+defaults write com.apple.AppleMultitouchTrackpad TrackpadRightClick -bool true
+defaults -currentHost write NSGlobalDomain com.apple.trackpad.enableSecondaryClick -bool true
+## 3本指ドラッグ
+defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool true
+## ナチュラルスクロールを無効化（従来のスクロール方向）
+defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
 
 ## このアプリケーションを開いてもよろしいですか？のダイアログを無効化
 defaults write com.apple.LaunchServices LSQuarantine -bool false
