@@ -69,13 +69,20 @@
   - 使用していないパッケージの削除
   - 非推奨 tap の更新 (adoptopenjdk 等)
 
+### Homebrew インストール
+
+- [x] **macOS / Linux でのインストール分岐**
+  - macOS: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+  - Linux: [Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux) の手順に従う
+  - プラットフォーム検出による自動切り替え
+
 ### シェルスクリプト改善
 
-- [ ] **エラーハンドリングの強化**
+- [x] **エラーハンドリングの強化**
   - `set -u` の追加（未定義変数エラー）
   - trap によるクリーンアップ処理
 
-- [ ] **ログ出力オプションの追加**
+- [x] **ログ出力オプションの追加**
   - ファイルへのログ出力
   - CI 環境向けの構造化ログ
 
@@ -100,9 +107,16 @@
 
 ### 機能追加
 
-- [ ] **Starship プロンプトのオプション対応**
-  - P10k の軽量代替として
-  - 設定ファイルの追加
+- [x] **Starship プロンプトへの移行（p10k を置き換え）**
+  - Homebrew で starship をインストール（Brewfile に追加）
+  - 設定ファイル: `dotfiles/config/starship/starship.toml` を作成
+  - `~/.config/starship.toml` へシンボリックリンク（link.sh に追加）
+  - p10k 関連ファイルの削除:
+    - `config/zsh/.p10k.zsh` を削除
+    - `.zimrc` から `powerlevel10k` を削除
+    - `.zshrc` から p10k instant prompt を削除
+  - zsh 初期化に `eval "$(starship init zsh)"` を追加
+  - 参考: [Starship](https://starship.rs/)
 
 - [ ] **Neovim 設定の追加**
   - Lua ベースの設定
@@ -114,13 +128,15 @@
 
 ### テスト強化
 
-- [ ] **機能テストの追加**
+- [x] **機能テストの追加**
   - ツールが正しく初期化されるか
   - シンボリックリンクの検証
+  - BATS フレームワークを使用（`make functional-test`）
 
-- [ ] **シェル起動時間のベンチマーク**
+- [x] **シェル起動時間のベンチマーク**
   - CI での定期計測
-  - 閾値超過時のアラート
+  - 閾値超過時のアラート（500ms）
+  - `make benchmark` で実行可能
 
 ---
 
