@@ -29,6 +29,19 @@ fi
 
 export HISTFILE="$XDG_STATE_HOME/zsh/history"
 
+# Homebrew - .zshrc の conf.d より前に PATH を設定する必要がある
+# （zoxide 等の Homebrew ツールを Zim 初期化時に検出するため）
+if command -v brew &>/dev/null; then
+  eval "$(brew shellenv)"
+else
+  for brew_path in "/opt/homebrew" "/usr/local" "/home/linuxbrew/.linuxbrew"; do
+    if [[ -x "${brew_path}/bin/brew" ]]; then
+      eval "$(${brew_path}/bin/brew shellenv)"
+      break
+    fi
+  done
+fi
+
 # Docker
 [[ -d "$XDG_CONFIG_HOME/docker" ]] || mkdir -p "$XDG_CONFIG_HOME/docker"
 export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"

@@ -1,14 +1,5 @@
-# Homebrew - 動的検出と設定
-if command -v brew &>/dev/null; then
-  eval "$(brew shellenv)"
-else
-  for brew_path in "/opt/homebrew" "/usr/local" "/home/linuxbrew/.linuxbrew"; do
-    if [[ -x "${brew_path}/bin/brew" ]]; then
-      eval "$(${brew_path}/bin/brew shellenv)"
-      break
-    fi
-  done
-fi
+# Homebrew PATH は ~/.zshenv で設定済み
+# （zoxide 等の Homebrew ツールを Zim 初期化時に検出するため）
 
 # Gradle
 [[ -d "/opt/homebrew/opt/gradle@8/bin" ]] && export PATH="/opt/homebrew/opt/gradle@8/bin:$PATH"
