@@ -88,8 +88,11 @@ defaults write com.apple.AppleMultitouchTrackpad TrackpadRightClick -bool true
 defaults -currentHost write NSGlobalDomain com.apple.trackpad.enableSecondaryClick -bool true
 ## 3本指ドラッグ
 defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool true
+## クリックの押下感（0:弱い 1:中 2:強い）
+defaults write com.apple.AppleMultitouchTrackpad FirstClickThreshold -int 0
+defaults write com.apple.AppleMultitouchTrackpad SecondClickThreshold -int 1
 ## ナチュラルスクロールを無効化（従来のスクロール方向）
-defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
+# defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
 
 ## このアプリケーションを開いてもよろしいですか？のダイアログを無効化
 defaults write com.apple.LaunchServices LSQuarantine -bool false
