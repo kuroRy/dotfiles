@@ -7,6 +7,7 @@
       "List(*)",
       "Fetch(https://*)",
       "Edit(*)",
+      "Bash(cd:*)",
       "Bash(npm:*)",
       "Bash(git:*)",
       "Bash(gh:*)",
@@ -24,6 +25,7 @@
       "Bash(docker:*)",
       "Skill(skill-creator)",
       "Bash(codex:*)",
+      "Bash(playwright-cli:*)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__get-library-docs"
     ],
