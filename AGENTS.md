@@ -8,7 +8,7 @@
 - `docker/` と `docker-compose.test.yml` は WSL/Linux 検証用の軽量コンテナを提供します。
 
 ## Build, Test, and Development Commands
-- `make init` : 初回セットアップ。anyenv 初期化と共通ディレクトリ作成を行います。
+- `make init` : 初回セットアップ。共通ディレクトリ作成を行います。
 - `make link` : 主要設定ファイルを `$HOME/.config/*` へシンボリックリンクします。
 - `make defaults` : macOS 用 `defaults` 設定を適用します (他 OS では無視されます)。
 - `make packages` / `make brew` : `local/bin/packages.sh install` を呼び出し、Brewfile 群を同期します。

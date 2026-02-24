@@ -201,6 +201,9 @@ link_config "tmux/tmux.conf"
 # act configuration
 link_config "act/actrc"
 
+# mise configuration (development tool version manager)
+link_config "mise/config.toml"
+
 # VSCode configuration (macOS対応)
 if [[ -d "$DOTFILES_DIR/config/vscode" ]]; then
     if isRunningOnMac; then

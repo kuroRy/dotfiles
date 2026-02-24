@@ -112,6 +112,16 @@ load test_helper
 }
 
 # =============================================================================
+# mise 設定ファイル
+# =============================================================================
+
+@test "mise: ~/.config/mise/config.toml symlink exists and valid" {
+    skip_if_ci
+    skip_if_no_file "$(get_dotfiles_target config/mise/config.toml)"
+    assert_symlink_exists "${XDG_CONFIG_HOME}/mise/config.toml"
+}
+
+# =============================================================================
 # Brewfile
 # =============================================================================
 

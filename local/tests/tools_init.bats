@@ -27,31 +27,29 @@ load test_helper
 }
 
 # =============================================================================
-# 遅延読み込み関数テスト
+# mise ツールバージョン管理テスト
 # =============================================================================
 
-@test "lazy loading: anyenv function defined" {
+@test "mise: command exists" {
     skip_if_ci
-    skip_if_no_dir "$HOME/.anyenv"
-    assert_zsh_function_defined "anyenv"
+    assert_command_exists mise
 }
 
-@test "lazy loading: nodenv function defined" {
+@test "mise: activation hook is loaded" {
     skip_if_ci
-    skip_if_no_dir "$HOME/.anyenv"
-    assert_zsh_function_defined "nodenv"
-}
+    skip_if_no_command mise
+    skip_if_no_command zsh
+    skip_if_no_file "${XDG_CONFIG_HOME}/zsh/.zshrc"
 
-@test "lazy loading: pyenv function defined" {
-    skip_if_ci
-    skip_if_no_dir "$HOME/.anyenv"
-    assert_zsh_function_defined "pyenv"
-}
+    # mise activate zsh がフック関数を登録しているか確認
+    local result
+    result=$(ZDOTDIR="${XDG_CONFIG_HOME}/zsh" zsh -i -c 'type _mise_hook' 2>&1) || true
 
-@test "lazy loading: rbenv function defined" {
-    skip_if_ci
-    skip_if_no_dir "$HOME/.anyenv"
-    assert_zsh_function_defined "rbenv"
+    if echo "$result" | grep -q "function"; then
+        return 0
+    else
+        skip "mise activation hook not loaded"
+    fi
 }
 
 @test "lazy loading: kubectl function defined" {

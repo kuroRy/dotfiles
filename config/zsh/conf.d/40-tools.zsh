@@ -1,14 +1,6 @@
-# anyenv - 遅延読み込みで起動を高速化
-if [[ -d "$HOME/.anyenv" ]]; then
-  anyenv() {
-    unset -f anyenv nodenv pyenv rbenv
-    eval "$(command anyenv init -)"
-    anyenv "$@"
-  }
-  # 各envマネージャーも遅延読み込み
-  nodenv() { anyenv; nodenv "$@" }
-  pyenv() { anyenv; pyenv "$@" }
-  rbenv() { anyenv; rbenv "$@" }
+# mise - 開発ツールバージョン管理
+if command -v mise &>/dev/null; then
+  eval "$(mise activate zsh)"
 fi
 
 # kubectl - 遅延読み込みで起動を高速化

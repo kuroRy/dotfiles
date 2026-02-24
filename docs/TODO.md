@@ -47,10 +47,10 @@
 
 ### パフォーマンス最適化
 
-- [ ] **anyenv から mise への移行検討**
+- [x] **anyenv から mise への移行**
   - mise (旧 rtx) はより高速
   - 参考: https://mise.jdx.dev/
-  - 移行スクリプトの作成
+  - config/mise/config.toml でツールバージョンを管理
 
 - [x] **kubectl 補完の遅延読み込み**
   - 現在は起動時に毎回読み込み

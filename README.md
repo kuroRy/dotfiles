@@ -51,7 +51,7 @@ dotfiles/
 │   │   ├── link.sh            # シンボリックリンク作成
 │   │   ├── defaults.sh        # macOS defaults 設定
 │   │   ├── packages.sh        # パッケージ管理
-│   │   ├── anyenv.sh          # anyenv セットアップ
+│   │   ├── mise.sh            # mise セットアップ
 │   │   ├── test.sh            # テストスクリプト
 │   │   ├── verify.sh          # 検証スクリプト
 │   │   └── lint.sh            # Lint スクリプト
@@ -135,10 +135,10 @@ DEBUG=1 make link
 
 ### 言語バージョン管理
 
-- **anyenv**: バージョンマネージャの統合管理
-  - **jenv**: Java バージョン管理
-  - **nodenv**: Node.js バージョン管理
-  - **goenv**: Go バージョン管理
+- **[mise](https://mise.jdx.dev/)**: 開発ツールバージョン管理
+  - Node.js 22.17.0
+  - Go 1.22.1
+  - Java (Corretto) 21.0.2
 
 ### パッケージ管理
 

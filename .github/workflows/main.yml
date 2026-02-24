@@ -75,10 +75,10 @@ jobs:
           make verify
         continue-on-error: true
 
-      - name: anyenv セットアップテスト
+      - name: mise セットアップテスト
         run: |
           cd $HOME/dotfiles
-          local/bin/anyenv.sh test
+          local/bin/mise.sh test
         continue-on-error: true
 
   # 機能テスト（BATS）
