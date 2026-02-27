@@ -215,7 +215,7 @@ if [[ -d "$DOTFILES_DIR/config/vscode" ]]; then
 fi
 
 # wezterm configuration
-link_config "wezterm/wezterm.lua"
+link_config "wezterm"
 
 # ghostty configuration
 link_config "ghostty/config"

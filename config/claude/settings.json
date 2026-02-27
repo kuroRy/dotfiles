@@ -42,6 +42,8 @@
       "Bash(test:*)",
       "Bash(source *)",
       "Bash(mise:*)",
+      "Bash(python3:*)",
+      "Bash(cursor:*)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__get-library-docs",
       "mcp__context7__query-docs"
@@ -88,7 +90,8 @@
     "code-review@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true,
+    "coderabbit@claude-plugins-official": true
   },
   "language": "日本語"
 }
