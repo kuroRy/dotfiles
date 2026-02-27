@@ -59,5 +59,5 @@ export CLAUDE_CONFIG_DIR="$XDG_CONFIG_HOME/claude"
 export LESSHISTFILE="$XDG_STATE_HOME/less/history"
 
 # npmrc
-[[ -d "$XDG_CONFIG_HOME/npm/npmrc" ]] || mkdir -p "$XDG_CONFIG_HOME/npm/npmrc"
+[[ -d "$XDG_CONFIG_HOME/npm" ]] || mkdir -p "$XDG_CONFIG_HOME/npm"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
