@@ -112,6 +112,24 @@ load test_helper
 }
 
 # =============================================================================
+# ccstatusline 設定ファイル (Claude Code status line)
+# =============================================================================
+
+@test "ccstatusline: settings.json source exists in dotfiles" {
+    assert_file_exists "$(get_dotfiles_target config/ccstatusline/settings.json)"
+}
+
+@test "ccstatusline: ~/.config/ccstatusline/settings.json symlink exists and valid" {
+    skip_if_ci
+    assert_symlink_exists "${XDG_CONFIG_HOME}/ccstatusline/settings.json"
+}
+
+@test "ccstatusline: ~/.config/ccstatusline/settings.json points to dotfiles" {
+    skip_if_ci
+    assert_symlink "${XDG_CONFIG_HOME}/ccstatusline/settings.json" "$(get_dotfiles_target config/ccstatusline/settings.json)"
+}
+
+# =============================================================================
 # mise 設定ファイル
 # =============================================================================
 

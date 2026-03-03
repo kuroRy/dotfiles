@@ -192,6 +192,9 @@ if [[ -d "$DOTFILES_DIR/config/claude" ]]; then
     fi
 fi
 
+# ccstatusline configuration (Claude Code status line)
+link_config "ccstatusline/settings.json"
+
 # iTerm2 configuration
 link_config "iterm2/com.googlecode.iterm2.plist"
 

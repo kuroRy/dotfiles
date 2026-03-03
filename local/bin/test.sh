@@ -110,6 +110,7 @@ test_file_exists "init.sh" "${DOTFILES_DIR}/local/bin/init.sh"
 test_file_exists "link.sh" "${DOTFILES_DIR}/local/bin/link.sh"
 test_file_exists "zshrc" "${DOTFILES_DIR}/config/zsh/.zshrc"
 test_file_exists "git config" "${DOTFILES_DIR}/config/git/config"
+test_file_exists "ccstatusline settings" "${DOTFILES_DIR}/config/ccstatusline/settings.json"
 test_file_exists ".Brewfile" "${DOTFILES_DIR}/local/share/dotfiles/brewfiles/.Brewfile"
 
 # テンプレートファイルのテスト
