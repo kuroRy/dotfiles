@@ -146,52 +146,6 @@ link_config "starship/starship.toml" "starship.toml"
 link_config "git/config"
 link_config "git/ignore"
 
-# Claude configuration (XDG_CONFIG_HOME supported since v1.0.28)
-if [[ -d "$DOTFILES_DIR/config/claude" ]]; then
-    CLAUDE_CONFIG_DIR="$XDG_CONFIG_HOME/claude"
-    mkdir -p "$CLAUDE_CONFIG_DIR"
-
-    # Directories to link individually (allows coexistence with Claude-generated files)
-    individual_link_dirs=("skills" "scripts")
-
-    # Link non-individual items directly
-    for claude_file in "$DOTFILES_DIR/config/claude"/*; do
-        [[ -e "$claude_file" ]] || continue
-        local_name=$(basename "$claude_file")
-
-        # Skip directories that need individual linking
-        for skip_dir in "${individual_link_dirs[@]}"; do
-            if [[ "$local_name" == "$skip_dir" ]]; then
-                continue 2
-            fi
-        done
-
-        ln -fnsv "$claude_file" "$CLAUDE_CONFIG_DIR/"
-    done
-
-    # Link contents of individual directories
-    for dir_name in "${individual_link_dirs[@]}"; do
-        src_dir="$DOTFILES_DIR/config/claude/$dir_name"
-        dest_dir="$CLAUDE_CONFIG_DIR/$dir_name"
-
-        [[ -d "$src_dir" ]] || continue
-        mkdir -p "$dest_dir"
-
-        for item in "$src_dir"/*; do
-            [[ -e "$item" ]] || continue
-            item_name=$(basename "$item")
-            dest_path="$dest_dir/$item_name"
-            link_with_dir_prompt "$item" "$dest_path"
-        done
-    done
-
-    # mcp.json: ホームディレクトリにもリンク（後方互換性）
-    if [[ -f "$DOTFILES_DIR/config/claude/mcp.json" ]]; then
-        ln -fnsv "$DOTFILES_DIR/config/claude/mcp.json" "$HOME/.mcp.json"
-        info "Linked mcp.json to ~/.mcp.json for backward compatibility"
-    fi
-fi
-
 # ccstatusline configuration (Claude Code status line)
 link_config "ccstatusline/settings.json"
 
@@ -207,45 +161,17 @@ link_config "act/actrc"
 # mise configuration (development tool version manager)
 link_config "mise/config.toml"
 
-# VSCode configuration (macOS対応)
-if [[ -d "$DOTFILES_DIR/config/vscode" ]]; then
-    if isRunningOnMac; then
-        VSCODE_DIR="$HOME/Library/Application Support/Code/User"
-    else
-        VSCODE_DIR="$HOME/.vscode"
-    fi
-    link_dir_contents "$DOTFILES_DIR/config/vscode" "$VSCODE_DIR" "file" "*.json"
-fi
-
 # wezterm configuration
 link_config "wezterm"
 
-# ghostty configuration
-link_config "ghostty/config"
-# macOS: Application Supportの設定ファイルを削除してシンボリックリンクに置き換え
-# (Raycast等から起動時にApplication Supportが優先されるため)
-if isRunningOnMac; then
-    GHOSTTY_APP_SUPPORT="$HOME/Library/Application Support/com.mitchellh.ghostty"
-    if [[ -d "$GHOSTTY_APP_SUPPORT" ]]; then
-        GHOSTTY_CONFIG="$GHOSTTY_APP_SUPPORT/config"
-        # 実ファイル（シンボリックリンクでない）が存在する場合は削除
-        if [[ -f "$GHOSTTY_CONFIG" && ! -L "$GHOSTTY_CONFIG" ]]; then
-            rm "$GHOSTTY_CONFIG"
-            info "Removed existing Ghostty config in Application Support"
-        fi
-        link_file "$DOTFILES_DIR/config/ghostty/config" "$GHOSTTY_CONFIG"
-    fi
-fi
+# AeroSpace configuration (tiling window manager)
+link_file "$DOTFILES_DIR/config/aerospace/aerospace.toml" "$HOME/.aerospace.toml"
 
-# Cursor configuration (macOS対応)
-if [[ -f "$DOTFILES_DIR/config/cursor/settings.json" ]]; then
-    if isRunningOnMac; then
-        CURSOR_DIR="$HOME/Library/Application Support/Cursor/User"
-    else
-        CURSOR_DIR="$XDG_CONFIG_HOME/Cursor/User"
-    fi
-    link_file "$DOTFILES_DIR/config/cursor/settings.json" "$CURSOR_DIR/settings.json"
-fi
+# アプリ固有の設定（link.d/ 内のスクリプトを読み込み）
+for link_script in "$SCRIPT_DIR/link.d"/*.sh; do
+    [[ -f "$link_script" ]] || continue
+    source "$link_script"
+done
 
 success "XDG configuration files linked"
 

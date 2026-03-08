@@ -1,0 +1,189 @@
+# =============================================================================
+# AeroSpace - macOS 用 i3 ライクなタイリングウィンドウマネージャー
+# https://nikitabobko.github.io/AeroSpace/
+# =============================================================================
+#
+# Hyper キー = 右 Cmd（Karabiner-Elements でリマップ）
+# 右 Cmd を押すと ctrl+alt+cmd+shift が同時に送信される
+
+# 設定ファイルのバージョン（必須）
+config-version = 2
+
+# ログイン時に自動起動する
+start-at-login = true
+
+# AeroSpace 起動後に実行するコマンド
+after-startup-command = []
+
+# ツリー正規化: 不要なネストを自動で平坦化する
+enable-normalization-flatten-containers = true
+
+# ツリー正規化: ネストされたコンテナの分割方向を自動で交互にする
+enable-normalization-opposite-orientation-for-nested-containers = true
+
+# アコーディオンレイアウト時のパディング（px）
+accordion-padding = 30
+
+# デフォルトのレイアウト（tiles: タイル表示）
+default-root-container-layout = 'tiles'
+
+# デフォルトの分割方向（auto: 画面の向きに応じて自動判定）
+default-root-container-orientation = 'auto'
+
+# モニター間でフォーカスが移動したとき、マウスカーソルを移動先モニターの中央に移動する
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+# =============================================================================
+# ウィンドウ間の隙間（px）
+# =============================================================================
+[gaps]
+    inner.horizontal = 8  # ウィンドウ同士の水平方向の隙間
+    inner.vertical = 8    # ウィンドウ同士の垂直方向の隙間
+    outer.left = 8        # 画面左端との隙間
+    outer.right = 8       # 画面右端との隙間
+    outer.top = 8         # 画面上端との隙間
+    outer.bottom = 8      # 画面下端との隙間
+
+# =============================================================================
+# キーボード配列
+# =============================================================================
+[key-mapping]
+    preset = 'qwerty'
+
+# =============================================================================
+# メインモードのキーバインド
+# Hyper = 右 Cmd キー（Karabiner-Elements でリマップ済み）
+# =============================================================================
+[mode.main.binding]
+
+    # -- レイアウト切り替え --
+    alt-ctrl-cmd-shift-slash = 'layout tiles horizontal vertical'  # タイルレイアウトを切り替え
+    alt-ctrl-cmd-shift-comma = 'layout accordion horizontal vertical'  # アコーディオンレイアウトを切り替え
+    alt-ctrl-cmd-shift-f = 'fullscreen'  # フルスクリーン表示の切り替え
+
+    # -- フォーカス移動（vim 風 hjkl） --
+    alt-ctrl-cmd-shift-h = 'focus left'   # 左のウィンドウにフォーカス
+    alt-ctrl-cmd-shift-j = 'focus down'   # 下のウィンドウにフォーカス
+    alt-ctrl-cmd-shift-k = 'focus up'     # 上のウィンドウにフォーカス
+    alt-ctrl-cmd-shift-l = 'focus right'  # 右のウィンドウにフォーカス
+
+    # -- ウィンドウの移動（矢印キー） --
+    alt-ctrl-cmd-shift-left = 'move left'    # ウィンドウを左に移動
+    alt-ctrl-cmd-shift-down = 'move down'    # ウィンドウを下に移動
+    alt-ctrl-cmd-shift-up = 'move up'        # ウィンドウを上に移動
+    alt-ctrl-cmd-shift-right = 'move right'  # ウィンドウを右に移動
+
+    # -- リサイズ --
+    alt-ctrl-cmd-shift-minus = 'resize smart -50'  # ウィンドウを縮小
+    alt-ctrl-cmd-shift-equal = 'resize smart +50'  # ウィンドウを拡大
+
+    # -- ワークスペース切り替え --
+    alt-ctrl-cmd-shift-1 = 'workspace 1'
+    alt-ctrl-cmd-shift-2 = 'workspace 2'
+    alt-ctrl-cmd-shift-3 = 'workspace 3'
+    alt-ctrl-cmd-shift-4 = 'workspace 4'
+    alt-ctrl-cmd-shift-5 = 'workspace 5'
+    alt-ctrl-cmd-shift-6 = 'workspace 6'
+    alt-ctrl-cmd-shift-7 = 'workspace 7'
+    alt-ctrl-cmd-shift-8 = 'workspace 8'
+    alt-ctrl-cmd-shift-9 = 'workspace 9'
+
+    # -- ウィンドウを別のワークスペースに送る --
+    alt-ctrl-cmd-shift-i = 'move-node-to-workspace 1'  # ワークスペース 1 へ送る
+    alt-ctrl-cmd-shift-o = 'move-node-to-workspace 2'  # ワークスペース 2 へ送る
+    alt-ctrl-cmd-shift-p = 'move-node-to-workspace 3'  # ワークスペース 3 へ送る
+
+    # -- モニター操作 --
+    alt-ctrl-cmd-shift-tab = 'workspace-back-and-forth'  # 直前のワークスペースに戻る
+    alt-ctrl-cmd-shift-backtick = 'move-workspace-to-monitor --wrap-around next'  # ワークスペースを次のモニターに移動
+
+    # -- モード切り替え --
+    alt-ctrl-cmd-shift-semicolon = 'mode service'  # サービスモードに入る
+    alt-ctrl-cmd-shift-r = 'mode resize'           # リサイズモードに入る
+
+# =============================================================================
+# サービスモード（Hyper + ; で入る）
+# 設定のリロードやレイアウト調整など管理用のモード
+# =============================================================================
+[mode.service.binding]
+    esc = ['reload-config', 'mode main']                  # 設定をリロードしてメインモードに戻る
+    r = ['flatten-workspace-tree', 'mode main']           # ワークスペースのツリーを平坦化
+    f = ['layout floating tiling', 'mode main']           # フローティング/タイリングを切り替え
+    backspace = ['close-all-windows-but-current', 'mode main']  # 現在のウィンドウ以外を閉じる
+
+    # 隣接するウィンドウと結合する
+    h = ['join-with left', 'mode main']   # 左のウィンドウと結合
+    j = ['join-with down', 'mode main']   # 下のウィンドウと結合
+    k = ['join-with up', 'mode main']     # 上のウィンドウと結合
+    l = ['join-with right', 'mode main']  # 右のウィンドウと結合
+
+# =============================================================================
+# リサイズモード（Hyper + r で入る）
+# hjkl でウィンドウサイズを調整するモード
+# =============================================================================
+[mode.resize.binding]
+    h = 'resize width -50'   # 幅を縮小
+    j = 'resize height +50'  # 高さを拡大
+    k = 'resize height -50'  # 高さを縮小
+    l = 'resize width +50'   # 幅を拡大
+    enter = 'mode main'      # メインモードに戻る
+    esc = 'mode main'        # メインモードに戻る
+
+# =============================================================================
+# ウィンドウルール
+# 特定のアプリを自動でフローティング（タイリングしない）にする
+# =============================================================================
+
+# システム環境設定
+[[on-window-detected]]
+    if.app-id = 'com.apple.systempreferences'
+    run = 'layout floating'
+
+[[on-window-detected]]
+    if.app-id = 'com.apple.SystemPreferences'
+    run = 'layout floating'
+
+# Finder
+[[on-window-detected]]
+    if.app-id = 'com.apple.finder'
+    run = 'layout floating'
+
+# 計算機
+[[on-window-detected]]
+    if.app-id = 'com.apple.calculator'
+    run = 'layout floating'
+
+# アクティビティモニタ
+[[on-window-detected]]
+    if.app-id = 'com.apple.ActivityMonitor'
+    run = 'layout floating'
+
+# パスワード
+[[on-window-detected]]
+    if.app-id = 'com.apple.Passwords'
+    run = 'layout floating'
+
+# アプリ名に "Preferences" を含むもの
+[[on-window-detected]]
+    if.app-name-regex-substring = '[Pp]references'
+    run = 'layout floating'
+
+# アプリ名に "Settings" を含むもの
+[[on-window-detected]]
+    if.app-name-regex-substring = '[Ss]ettings'
+    run = 'layout floating'
+
+# 1Password
+[[on-window-detected]]
+    if.app-id = 'com.1password.1password'
+    run = 'layout floating'
+
+# Raycast
+[[on-window-detected]]
+    if.app-id = 'com.raycast.macos'
+    run = 'layout floating'
+
+# WezTerm（フルサイズで使用するためタイリングしない）
+[[on-window-detected]]
+    if.app-id = 'com.github.wez.wezterm'
+    run = 'layout floating'
