@@ -115,6 +115,9 @@ defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 34 "<dic
 # ウィンドウアニメーションを無効化
 defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
 
+# スペースを複数のディスプレイにまたがって表示
+defaults write com.apple.spaces spans-displays -bool true
+
 for app in "Dock" \
   "Finder" \
   "SystemUIServer"; do
