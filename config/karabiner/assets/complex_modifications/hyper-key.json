@@ -1,5 +1,5 @@
 {
-  "title": "Right Command to Hyper Key",
+  "title": "Hyper Key Mappings",
   "rules": [
     {
       "description": "Right Command -> Hyper (ctrl+alt+cmd+shift)",
@@ -19,6 +19,41 @@
                 "left_control",
                 "left_option",
                 "left_command"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Caps Lock -> Hyper (ctrl+alt+cmd+shift) [Telink]",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "caps_lock",
+            "modifiers": {
+              "optional": ["any"]
+            }
+          },
+          "to": [
+            {
+              "key_code": "left_shift",
+              "modifiers": [
+                "left_control",
+                "left_option",
+                "left_command"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "device_if",
+              "identifiers": [
+                {
+                  "vendor_id": 12815,
+                  "product_id": 20616
+                }
               ]
             }
           ]

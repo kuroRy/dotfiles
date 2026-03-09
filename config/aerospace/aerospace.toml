@@ -57,8 +57,8 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 [mode.main.binding]
 
     # -- レイアウト切り替え --
-    alt-ctrl-cmd-shift-slash = 'layout tiles horizontal vertical'  # タイルレイアウトを切り替え
-    alt-ctrl-cmd-shift-comma = 'layout accordion horizontal vertical'  # アコーディオンレイアウトを切り替え
+    alt-ctrl-cmd-shift-t = 'layout tiles horizontal vertical'  # タイルレイアウトを切り替え
+    alt-ctrl-cmd-shift-a = 'layout accordion horizontal vertical'  # アコーディオンレイアウトを切り替え
     alt-ctrl-cmd-shift-f = 'fullscreen'  # フルスクリーン表示の切り替え
 
     # -- フォーカス移動（vim 風 hjkl） --
