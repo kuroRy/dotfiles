@@ -165,11 +165,12 @@ link_config "mise/config.toml"
 link_config "wezterm"
 
 # AeroSpace configuration (tiling window manager)
-link_file "$DOTFILES_DIR/config/aerospace/aerospace.toml" "$HOME/.aerospace.toml"
+link_config "aerospace/aerospace.toml"
 
 # アプリ固有の設定（link.d/ 内のスクリプトを読み込み）
 for link_script in "$SCRIPT_DIR/link.d"/*.sh; do
     [[ -f "$link_script" ]] || continue
+    # shellcheck source=/dev/null
     source "$link_script"
 done
 
