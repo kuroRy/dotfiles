@@ -26,7 +26,7 @@
       ]
     },
     {
-      "description": "Caps Lock -> Hyper (ctrl+alt+cmd+shift) [Telink]",
+      "description": "Caps Lock -> Hyper (ctrl+alt+cmd+shift) [Telink, Apple]",
       "manipulators": [
         {
           "type": "basic",
@@ -53,6 +53,9 @@
                 {
                   "vendor_id": 12815,
                   "product_id": 20616
+                },
+                {
+                  "vendor_id": 1452
                 }
               ]
             }
