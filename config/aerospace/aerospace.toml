@@ -92,6 +92,9 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
     alt-ctrl-cmd-shift-i = 'move-node-to-workspace 1'  # ワークスペース 1 へ送る
     alt-ctrl-cmd-shift-o = 'move-node-to-workspace 2'  # ワークスペース 2 へ送る
     alt-ctrl-cmd-shift-p = 'move-node-to-workspace 3'  # ワークスペース 3 へ送る
+    alt-ctrl-cmd-shift-u = 'move-node-to-workspace 4'  # ワークスペース 4 へ送る
+    alt-ctrl-cmd-shift-y = 'move-node-to-workspace 5'  # ワークスペース 5 へ送る
+
 
     # -- モニター操作 --
     alt-ctrl-cmd-shift-tab = 'workspace-back-and-forth'  # 直前のワークスペースに戻る
