@@ -62,6 +62,30 @@
           ]
         }
       ]
+    },
+    {
+      "description": "Hyper + D -> difit-cmux (code review diff viewer)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "d",
+            "modifiers": {
+              "mandatory": [
+                "left_shift",
+                "left_control",
+                "left_option",
+                "left_command"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "$HOME/.local/bin/difit-cmux"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

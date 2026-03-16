@@ -62,7 +62,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cat | jq -r '\"display notification \\\"\" + .message + \"\\\" with title \\\"\" + .title + \"\\\" sound name \\\"Glass\\\"\"' | xargs -I {} osascript -e '{}'"
+            "command": "cat | jq -r '[\"--title\", .title, \"--body\", .message] | @sh' | xargs /Applications/cmux.app/Contents/Resources/bin/cmux notify"
           }
         ]
       }
@@ -73,7 +73,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "osascript -e 'display notification \"作業が完了しました。\" with title \"Claude Code\" sound name \"Glass\"'"
+            "command": "/Applications/cmux.app/Contents/Resources/bin/cmux notify --title 'Claude Code' --body '作業が完了しました。'"
           }
         ]
       }
@@ -95,6 +95,7 @@
     "coderabbit@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": true
   },
-  "language": "日本語",
+  "language": "Japanese",
+  "voiceEnabled": true,
   "skipDangerousModePermissionPrompt": true
 }
