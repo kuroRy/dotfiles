@@ -100,6 +100,9 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
     alt-ctrl-cmd-shift-tab = 'workspace-back-and-forth'  # 直前のワークスペースに戻る
     alt-ctrl-cmd-shift-backtick = 'move-workspace-to-monitor --wrap-around next'  # ワークスペースを次のモニターに移動
 
+    # -- WezTerm 専用ワークスペース --
+    alt-ctrl-cmd-shift-w = 'workspace T'
+
     # -- モード切り替え --
     alt-ctrl-cmd-shift-semicolon = 'mode service'  # サービスモードに入る
     alt-ctrl-cmd-shift-r = 'mode resize'           # リサイズモードに入る
@@ -186,7 +189,12 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
     if.app-id = 'com.raycast.macos'
     run = 'layout floating'
 
-# WezTerm（フルサイズで使用するためタイリングしない）
+# WezTerm を専用ワークスペース T に自動配置
 [[on-window-detected]]
     if.app-id = 'com.github.wez.wezterm'
-    run = 'layout floating'
+    run = ['move-node-to-workspace T']
+
+# cmux を専用ワークスペース T に自動配置
+[[on-window-detected]]
+    if.app-id = 'com.cmuxterm.app'
+    run = ['move-node-to-workspace T']
