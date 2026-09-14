@@ -117,5 +117,13 @@
   "cursor.composer.shouldChimeAfterChatFinishes": true,
   "cursor.agent_layout_browser_beta_setting": true,
   "git.confirmSync": false,
-  "commentTranslate.targetLanguage": "ja"
+  "commentTranslate.targetLanguage": "ja",
+  "python.languageServer": "None",
+  "window.autoDetectColorScheme": false,
+  "mssql.connectionGroups": [
+    {
+      "name": "ROOT",
+      "id": "ROOT"
+    }
+  ]
 }

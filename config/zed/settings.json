@@ -1,0 +1,42 @@
+// where: config/zed; what: Zed エディタの設定; why: 他エディタ・ターミナルと表示と整形の挙動を揃える
+// Zed の settings.json は JSONC (コメントと末尾カンマを許容)
+{
+  // 外観: フォントは wezterm と同じ HackGen Console NF に揃える
+  "theme": "One Dark",
+  "buffer_font_family": "HackGen Console NF",
+  "buffer_font_fallbacks": ["Menlo"],
+  "buffer_font_size": 14,
+  "buffer_font_features": {
+    "calt": true
+  },
+  "ui_font_size": 14,
+
+  // 編集: VS Code / Cursor 側の設定に合わせる
+  "tab_size": 2,
+  "soft_wrap": "editor_width",
+
+  // 保存時の整形: AGENTS.md の書式規約 (末尾空白の削除、ファイル末尾の改行) を機械的に担保する
+  "format_on_save": "on",
+  "remove_trailing_whitespace_on_save": true,
+  "ensure_final_newline_on_save": true,
+
+  "terminal": {
+    "font_family": "HackGen Console NF",
+    "font_size": 14,
+    "shell": "system"
+  },
+
+  // 言語ごとの上書き: 既定の tab_size 2 が合わないものだけ指定する
+  "languages": {
+    "Python": {
+      "tab_size": 4
+    },
+    "Go": {
+      "hard_tabs": true,
+      "tab_size": 4
+    },
+    "Makefile": {
+      "hard_tabs": true
+    }
+  }
+}

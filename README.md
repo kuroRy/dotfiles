@@ -39,6 +39,7 @@ dotfiles/
 │   ├── tmux/                  # tmux 設定
 │   ├── vscode/                # VS Code 設定
 │   ├── cursor/                # Cursor 設定
+│   ├── zed/                   # Zed 設定
 │   ├── wezterm/               # WezTerm 設定
 │   ├── iterm2/                # iTerm2 設定
 │   ├── claude/                # Claude Code 設定 & スキル

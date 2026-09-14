@@ -18,3 +18,5 @@ export GITHUB_TOKEN=$(gh auth token)
 if [[ -n "$ZSH_PROFILE" ]]; then
   zprof
 fi
+export PATH="$HOME/.local/bin:$PATH"
+

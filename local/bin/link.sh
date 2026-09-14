@@ -167,6 +167,11 @@ link_config "wezterm"
 # AeroSpace configuration (tiling window manager)
 link_config "aerospace/aerospace.toml"
 
+# Zed configuration
+# ディレクトリごとではなく JSON 単位でリンクする
+# (Zed 自身が ~/.config/zed 配下に themes/ や prompts/ を生成するため)
+link_dir_contents "$DOTFILES_DIR/config/zed" "$XDG_CONFIG_HOME/zed" "file" "*.json"
+
 # アプリ固有の設定（link.d/ 内のスクリプトを読み込み）
 for link_script in "$SCRIPT_DIR/link.d"/*.sh; do
     [[ -f "$link_script" ]] || continue

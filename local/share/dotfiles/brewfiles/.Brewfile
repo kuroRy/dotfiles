@@ -119,6 +119,7 @@ cask "tunnelblick"
 cask "wezterm"
 cask "wireshark-app"
 cask "zap"
+cask "zed"
 cask "zoom"
 mas "GarageBand", id: 682658836
 mas "iMovie", id: 408981434

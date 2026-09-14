@@ -86,6 +86,30 @@
           ]
         }
       ]
+    },
+    {
+      "description": "Hyper + U -> cmux jump to latest unread notification",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "u",
+            "modifiers": {
+              "mandatory": [
+                "left_shift",
+                "left_control",
+                "left_option",
+                "left_command"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "/Applications/cmux.app/Contents/Resources/bin/cmux select-workspace --unread-latest"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
