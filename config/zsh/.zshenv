@@ -61,3 +61,7 @@ export LESSHISTFILE="$XDG_STATE_HOME/less/history"
 # npmrc
 [[ -d "$XDG_CONFIG_HOME/npm" ]] || mkdir -p "$XDG_CONFIG_HOME/npm"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
+
+# npm: 公開から 3 日未満の版をインストールしない (乗っ取られた版は公開直後に見つかることが多いため)
+# 公開直後の版 (社内パッケージなど) が必要なときだけ --min-release-age=0 を付ける
+export NPM_CONFIG_MIN_RELEASE_AGE=3

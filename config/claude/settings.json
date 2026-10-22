@@ -5,45 +5,30 @@
   },
   "permissions": {
     "allow": [
-      "List(*)",
-      "Fetch(https://*)",
       "Edit(*)",
       "Bash(cd:*)",
-      "Bash(npm:*)",
-      "Bash(pnpm:*)",
-      "Bash(git:*)",
-      "Bash(gh:*)",
       "Bash(ls:*)",
       "Bash(ls -la:*)",
       "Bash(cat:*)",
       "Bash(mkdir:*)",
       "Bash(mv:*)",
       "Bash(cp:*)",
-      "Bash(make:*)",
       "Bash(tree:*)",
       "Bash(find:*)",
       "Bash(rg:*)",
       "Bash(grep:*)",
       "Bash(chmod:*)",
-      "Bash(docker:*)",
       "Skill(skill-creator)",
-      "Bash(codex:*)",
-      "Bash(playwright-cli:*)",
       "Bash(head:*)",
       "Bash(tail:*)",
       "Bash(sort:*)",
       "Bash(uniq:*)",
       "Bash(wc:*)",
-      "Bash(xargs:*)",
       "Bash(yes:*)",
       "Bash(echo:*)",
       "Bash(sleep:*)",
       "Bash(jq:*)",
       "Bash(test:*)",
-      "Bash(source *)",
-      "Bash(mise:*)",
-      "Bash(python3:*)",
-      "Bash(cursor:*)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__get-library-docs",
       "mcp__context7__query-docs"
@@ -51,10 +36,13 @@
     "deny": [
       "Bash(rm:*)",
       "Bash(sudo:*)",
-      "Read(.env.*)"
+      "Read(.env.*)",
+      "Read(.env)",
+      "Bash(gh auth token:*)"
     ],
-    "defaultMode": "acceptEdits"
+    "defaultMode": "auto"
   },
+  "model": "opus",
   "hooks": {
     "Notification": [
       {
@@ -63,6 +51,10 @@
           {
             "type": "command",
             "command": "cat | jq -r '[\"--title\", .title, \"--body\", .message] | @sh' | xargs /Applications/cmux.app/Contents/Resources/bin/cmux notify"
+          },
+          {
+            "type": "command",
+            "command": "afplay /System/Library/Sounds/Blow.aiff &"
           }
         ]
       }
@@ -74,6 +66,10 @@
           {
             "type": "command",
             "command": "/Applications/cmux.app/Contents/Resources/bin/cmux notify --title 'Claude Code' --body '作業が完了しました。'"
+          },
+          {
+            "type": "command",
+            "command": "afplay /System/Library/Sounds/Blow.aiff &"
           }
         ]
       }
@@ -81,7 +77,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bunx -y ccstatusline@latest",
+    "command": "bunx -y ccstatusline@2.2.32",
     "padding": 0
   },
   "enabledPlugins": {
@@ -93,9 +89,42 @@
     "typescript-lsp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
     "coderabbit@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true
+    "feature-dev@claude-plugins-official": true,
+    "chrome-devtools-mcp@chrome-devtools-plugins": true,
+    "slack@claude-plugins-official": true,
+    "explainer@explainer": true
+  },
+  "extraKnownMarketplaces": {
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    },
+    "chrome-devtools-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "ChromeDevTools/chrome-devtools-mcp"
+      }
+    },
+    "explainer": {
+      "source": {
+        "source": "github",
+        "repo": "mizchi/explainer"
+      }
+    }
   },
   "language": "Japanese",
-  "voiceEnabled": true,
-  "skipDangerousModePermissionPrompt": true
+  "modelSettings": {
+    "claude-opus-5": {
+      "effortLevel": "high"
+    },
+    "claude-opus-5-5": {
+      "effortLevel": "medium"
+    }
+  },
+  "preferredNotifChannel": "terminal_bell",
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true,
+  "voiceEnabled": true
 }
