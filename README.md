@@ -149,9 +149,8 @@ DEBUG=1 make link
 ### 言語バージョン管理
 
 - **[mise](https://mise.jdx.dev/)**: 開発ツールバージョン管理
-  - Node.js 22.17.0
-  - Go 1.22.1
-  - Java (Corretto) 21.0.2
+  - Node.js 24.22.1
+  - Go 1.26.10
 
 ### パッケージ管理
 
