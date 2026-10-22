@@ -1,0 +1,128 @@
+#!/bin/bash
+# where: config/git/hooks; what: コミット前にステージ内容の秘密情報を検査する
+# why: 2023 年に GitHub PAT を公開リポジトリへコミットした事故の再発防止
+#
+# 誤検知をゼロに保つため、確度の高いパターンだけを対象にする。
+# 検知したらコミットを中断する。意図的に通す場合のみ `git commit --no-verify`。
+
+set -uo pipefail
+
+# 不正バイト列が混入したときに grep の挙動がロケール依存にならないようにする
+export LC_ALL=C
+
+# 秘密情報のパターン (名前|正規表現)
+# 接頭辞が固定されているものに限定し、汎用的な password= 等は含めない
+PATTERNS=(
+    "GitHub token|(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36}"
+    "GitHub fine-grained token|github_pat_[A-Za-z0-9_]{60,}"
+    "GitLab token|glpat-[A-Za-z0-9_-]{20}"
+    "OpenAI API key|sk-(proj|svcacct|admin)-[A-Za-z0-9_-]{20,}"
+    "OpenAI API key (legacy)|sk-[A-Za-z0-9]{32,}"
+    "Anthropic API key|sk-ant-[A-Za-z0-9_-]{32,}"
+    "AWS access key ID|(AKIA|ASIA|AROA|AIDA)[0-9A-Z]{16}"
+    "AWS secret access key|aws_secret_access_key[[:space:]]*=[[:space:]]*[A-Za-z0-9/+=]{40}"
+    "Slack token|xox[baprs]-[A-Za-z0-9-]{10,}"
+    "Slack app-level token|xapp-[0-9]-[A-Za-z0-9-]{10,}"
+    "Slack webhook URL|hooks\\.slack\\.com/services/[A-Za-z0-9/]{20,}"
+    "GCP service account|\"private_key_id\"[[:space:]]*:"
+    "Google API key|AIza[0-9A-Za-z_-]{35}"
+    "Private key block|-----BEGIN [A-Z ]*PRIVATE KEY-----"
+    "npm token|npm_[A-Za-z0-9]{36}"
+)
+
+# ステージされた追加行のみを対象にする (削除行や既存行は見ない)
+staged_additions=$(git diff --cached --no-color --diff-filter=ACM -U0 |
+    grep -E '^\+' | grep -Ev '^\+\+\+ ' || true)
+
+found=0
+
+# 1) テキストとして diff に出る追加行を走査する
+for entry in "${PATTERNS[@]}"; do
+    [[ -n "$staged_additions" ]] || break
+    name="${entry%%|*}"
+    regex="${entry#*|}"
+    if grep -Eq -e "$regex" <<<"$staged_additions"; then
+        if [[ $found -eq 0 ]]; then
+            echo "" >&2
+            echo "コミットを中断しました: ステージされた変更に秘密情報が含まれています" >&2
+            echo "" >&2
+        fi
+        found=1
+        echo "  検出: $name" >&2
+        # 値は表示せず、該当ファイルだけを示す
+        git diff --cached --name-only --diff-filter=ACM | while read -r f; do
+            if git diff --cached --no-color -U0 -- "$f" |
+                grep -E '^\+' | grep -Ev '^\+\+\+ ' | grep -Eq -e "$regex"; then
+                echo "    → $f" >&2
+            fi
+        done
+    fi
+done
+
+# 2) バイナリとして扱われるファイルは diff に内容が出ないため、blob を直接検査する
+# (numstat はバイナリを "-\t-\tpath" で出力する)
+while IFS= read -r binfile; do
+    [[ -n "$binfile" ]] || continue
+    blob=$(git show ":$binfile" 2>/dev/null | tr -d '\0' || true)
+    [[ -n "$blob" ]] || continue
+    for entry in "${PATTERNS[@]}"; do
+        name="${entry%%|*}"
+        regex="${entry#*|}"
+        if grep -Eq -e "$regex" <<<"$blob"; then
+            if [[ $found -eq 0 ]]; then
+                echo "" >&2
+                echo "コミットを中断しました: ステージされた変更に秘密情報が含まれています" >&2
+                echo "" >&2
+            fi
+            found=1
+            echo "  検出: $name (バイナリ)" >&2
+            echo "    → $binfile" >&2
+        fi
+    done
+done < <(git diff --cached --numstat --diff-filter=ACM |
+    awk -F'\t' '$1 == "-" && $2 == "-" { print $3 }')
+
+# 3) ファイル名で明らかに秘密を含むものは、中身に関係なく止める
+#    (.gitignore は git add -f で無効化できるため、ここが最後の砦になる)
+NAME_PATTERNS=(
+    "ローカル設定|(^|/)[^/]*\\.local$"
+    "環境変数ファイル|(^|/)\\.env($|\\.)"
+    "SSH 秘密鍵|(^|/)id_(rsa|dsa|ecdsa|ed25519)$"
+    "証明書・鍵|\\.(pem|p12|pfx|key|jks|keystore)$"
+    "認証情報|(^|/)(credentials|\\.netrc|\\.npmrc|\\.pypirc)$"
+    "サービスアカウント鍵|(^|/)service-account.*\\.json$"
+)
+
+while IFS= read -r staged_name; do
+    [[ -n "$staged_name" ]] || continue
+    for entry in "${NAME_PATTERNS[@]}"; do
+        name="${entry%%|*}"
+        regex="${entry#*|}"
+        if grep -Eq -e "$regex" <<<"$staged_name"; then
+            if [[ $found -eq 0 ]]; then
+                echo "" >&2
+                echo "コミットを中断しました: ステージされた変更に秘密情報が含まれています" >&2
+                echo "" >&2
+            fi
+            found=1
+            echo "  検出: 秘密を含みうるファイル名 ($name)" >&2
+            echo "    → $staged_name" >&2
+        fi
+    done
+done < <(git diff --cached --name-only --diff-filter=ACM)
+
+if [[ $found -ne 0 ]]; then
+    cat >&2 <<'EOS'
+
+対処:
+  1. 該当箇所から秘密情報を取り除く
+  2. 秘密は *.local ファイル (git 管理外) か環境変数に置く
+  3. 既に外部へ出た可能性があるなら、まず発行元で失効させる
+
+意図的に通す場合のみ: git commit --no-verify
+
+EOS
+    exit 1
+fi
+
+exit 0

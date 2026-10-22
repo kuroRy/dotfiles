@@ -5,3 +5,8 @@ local/state/dotfiles/backups/**
 
 # Skill binary files (Zipアーカイブ)
 *.skill
+
+# ローカル専用設定 (秘匿情報の置き場所。リポジトリ内に作られても追跡しない)
+*.local
+*.local.json
+settings.local.json

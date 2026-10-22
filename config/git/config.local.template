@@ -1,6 +1,7 @@
 # .gitconfig.local - 個人用Git設定
-# このファイルを ~/.gitconfig.local にコピーし、変更する
-# このファイルは .gitconfig から自動的にインクルードされます
+# 配置先: ~/.config/git/config.local (make link で自動生成されます)
+# このファイルは git config から自動的にインクルードされます
+# git 管理外なので、秘匿情報はここに置いてください
 
 [user]
 	name = あなたの名前

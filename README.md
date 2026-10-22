@@ -11,6 +11,7 @@ macOS / Linux をサポートし、開発環境を一貫して構築できます
 - **タスク駆動**: Make ターゲットで初期化・リンク・パッケージ導入を自動化
 - **CI 検証**: GitHub Actions で macOS/Ubuntu の両環境をテスト
 - **Docker 検証**: ローカルで Ubuntu 22.04 環境を再現可能
+- **秘密情報のコミット防止**: `make link` で pre-commit フックを有効化し、トークン・APIキー・秘密鍵の混入を検出
 
 ## クイックスタート
 
@@ -93,6 +94,17 @@ dotfiles/
 |----------|------|
 | `make packages-status` | 現在のパッケージ管理状況を表示 |
 
+### セキュリティ
+
+| 項目 | 説明 |
+|------|------|
+| pre-commit フック | `make link` 時に有効化。ステージされた追加行からトークン・APIキー・秘密鍵を検出しコミットを中断する |
+| 秘密情報の置き場所 | `~/.config/git/config.local` や `~/.config/zsh/.zshrc.local` など、`*.local` 系 (git 管理外) に置く |
+| 意図的に通す場合 | `git commit --no-verify` |
+
+このリポジトリは public です。ツールが `git config --global` や設定ファイルへ書き込んだ
+マシン固有の値が、追跡ファイルに紛れ込むことがあります。コミット前に `git diff --cached` を確認してください。
+
 ### Docker 検証コマンド
 
 ```bash
@@ -172,7 +184,10 @@ GitHub Actions で以下のテストを実行しています:
 
 ## ノート
 
-- `config/zsh/.zshrc.local` や `config/git/config.local` には秘匿情報を記載しないでください。
+- **秘匿情報 (トークン、APIキー、業務固有の情報) は、git 管理外の `~/.config/**/*.local` に置いてください。**
+  リポジトリで追跡されるファイル (`config/` 配下、`local/bin/` 配下、`.Brewfile` など) には絶対に書かないでください。
+  このリポジトリは public です。一度コミットすると履歴から回収できません。
+- テンプレート (`*.template`) はリポジトリで追跡されます。ここに実際の値を書かないでください。
 - macOS の `defaults` 変更時は、逆操作をコメントとして併記してください。
 
 ## ライセンス

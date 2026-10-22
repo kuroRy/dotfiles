@@ -10,6 +10,23 @@ permissions:
   contents: read
 
 jobs:
+  # 秘密情報スキャン (pre-commit フックが届かない経路を塞ぐ)
+  # cherry-pick / rebase / clone 直後 / --no-verify はフックを起動しないため、
+  # CI 側でも履歴全体を機械的に検査する
+  secret-scan:
+    name: 秘密情報スキャン
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: gitleaks を実行
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   # Shellcheck による静的解析
   shellcheck:
     name: Shellcheck
@@ -27,7 +44,7 @@ jobs:
           shellcheck --version
           echo ""
           echo "=== スクリプトを検証中 ==="
-          shellcheck -x -e SC1091 local/bin/*.sh
+          shellcheck -x -e SC1091 local/bin/*.sh local/bin/link.d/*.sh config/git/hooks/*
           echo "✓ 全てのスクリプトがShellcheckを通過しました"
 
   # macOS テスト（Apple Silicon / M1）

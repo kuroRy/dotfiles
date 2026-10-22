@@ -1,3 +1,5 @@
+.PHONY: all init link defaults packages brew brew-dump test lint verify ci functional-test benchmark test-all packages-status
+
 all: init link defaults packages
 
 init:
@@ -27,7 +29,7 @@ lint:
 verify:
 	local/bin/verify.sh
 
-ci: test
+ci: test lint
 	@echo "CI用の軽量テストを実行"
 
 functional-test:
