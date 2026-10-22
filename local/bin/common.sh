@@ -199,6 +199,40 @@ setupErrorHandler() {
 }
 
 # =============================================================================
+# ファイル配置
+# =============================================================================
+
+# dotfiles のファイルを、シンボリックリンクではなく実ファイルのコピーとして配置する
+# Usage: installLocalCopy <source> <destination>
+# アプリ自身が書き戻す設定ファイル向け。リンクすると、書き戻されたマシン固有の値
+# (業務情報など) が dotfiles (public) の追跡ファイルに入ってしまうため。
+#   - 宛先がない: コピーを作る
+#   - 宛先が source を指すリンク (旧方式): 中身を引き継いだ実ファイルに置き換える
+#   - 宛先が実ファイル、または source 以外を指すリンク: 利用者の状態を優先して触らない
+installLocalCopy() {
+  local src="$1"
+  local dest="$2"
+  local tmp
+
+  [ -f "$src" ] || return 0
+
+  if [ -L "$dest" ] && [ "$dest" -ef "$src" ]; then
+    # mv (rename) はリンク自体を置き換え、リンク先 (= source) には書き込まない
+    tmp="${dest}.tmp.$$"
+    registerCleanup "$tmp"
+    cp "$src" "$tmp"
+    mv -f "$tmp" "$dest"
+    info "Replaced symlink with a local copy: $dest"
+  elif [ -e "$dest" ] || [ -L "$dest" ]; then
+    debug "Kept existing file: $dest"
+  else
+    mkdir -p "$(dirname "$dest")"
+    cp "$src" "$dest"
+    info "Created local copy: $dest"
+  fi
+}
+
+# =============================================================================
 # ネットワーク / ダウンロード
 # =============================================================================
 

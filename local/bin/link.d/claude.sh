@@ -9,19 +9,29 @@ mkdir -p "$CLAUDE_CONFIG_DIR"
 # Directories to link individually (allows coexistence with Claude-generated files)
 individual_link_dirs=("skills" "scripts")
 
+# Files Claude Code writes back to. Installed as local copies, not symlinks:
+# auto mode setup and /config store machine- or work-specific values here,
+# which must not end up in this public repository.
+local_copy_files=("settings.json")
+
 # Link non-individual items directly
 for claude_file in "$DOTFILES_DIR/config/claude"/*; do
     [[ -e "$claude_file" ]] || continue
     local_name=$(basename "$claude_file")
 
-    # Skip directories that need individual linking
-    for skip_dir in "${individual_link_dirs[@]}"; do
-        if [[ "$local_name" == "$skip_dir" ]]; then
+    # Skip items handled separately below
+    for skip_name in "${individual_link_dirs[@]}" "${local_copy_files[@]}"; do
+        if [[ "$local_name" == "$skip_name" ]]; then
             continue 2
         fi
     done
 
     ln -fnsv "$claude_file" "$CLAUDE_CONFIG_DIR/"
+done
+
+# Install local copies (a symlink left by older setups is converted in place)
+for copy_name in "${local_copy_files[@]}"; do
+    installLocalCopy "$DOTFILES_DIR/config/claude/$copy_name" "$CLAUDE_CONFIG_DIR/$copy_name"
 done
 
 # Link contents of individual directories
@@ -32,21 +42,8 @@ for dir_name in "${individual_link_dirs[@]}"; do
     [[ -d "$src_dir" ]] || continue
     mkdir -p "$dest_dir"
 
-    # dotfiles から削除・リネームされた項目のリンク切れを掃除
-    # 対象は dotfiles を指すリンク切れのみ。実ディレクトリ・実ファイル
-    # (Claude が生成したもの) と、dotfiles 外を指すリンクには触れない
-    # 隠し項目は対象外 (直後のリンク作成ループも同じく * のため一貫)
-    # 掃除は補助処理なので、失敗しても本処理を止めない
-    for stale_link in "$dest_dir"/*; do
-        [[ -L "$stale_link" && ! -e "$stale_link" ]] || continue
-        link_target=$(readlink "$stale_link")
-        [[ "$link_target" == "$DOTFILES_DIR"/* ]] || continue
-        if rm -f "$stale_link"; then
-            info "Removed broken symlink: $stale_link"
-        else
-            warning "Failed to remove broken symlink: $stale_link"
-        fi
-    done
+    # dotfiles から削除・リネームされた項目のリンク切れを掃除する
+    prune_stale_links "$dest_dir"
 
     for item in "$src_dir"/*; do
         [[ -e "$item" ]] || continue

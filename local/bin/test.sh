@@ -118,9 +118,41 @@ info "=== テンプレートファイルテスト ==="
 test_file_exists "zshrc.local.template" "${DOTFILES_DIR}/config/zsh/.zshrc.local.template"
 test_file_exists "git config.local.template" "${DOTFILES_DIR}/config/git/config.local.template"
 
-# スクリプトの構文チェック
+# ローカルコピー配置のテスト (Claude Code の settings.json などをリンクせずコピーで置く)
+# 一時ディレクトリ内だけで完結させ、実環境には触れない
+info "=== ローカルコピー配置テスト ==="
+LC_DIR="$(mktemp -d)"
+LC_SRC="${LC_DIR}/src.json"
+printf '{"base": true}\n' > "$LC_SRC"
+
+installLocalCopy "$LC_SRC" "${LC_DIR}/new/dest.json" >/dev/null || true
+test_assert "宛先がなければ、リンクではなく実ファイルとしてコピーする" \
+    "[ -f '${LC_DIR}/new/dest.json' ] && [ ! -L '${LC_DIR}/new/dest.json' ] && cmp -s '${LC_SRC}' '${LC_DIR}/new/dest.json'"
+
+ln -s "$LC_SRC" "${LC_DIR}/linked.json"
+installLocalCopy "$LC_SRC" "${LC_DIR}/linked.json" >/dev/null || true
+test_assert "dotfiles を指す旧方式のリンクは、中身を保った実ファイルに置き換える" \
+    "[ ! -L '${LC_DIR}/linked.json' ] && cmp -s '${LC_SRC}' '${LC_DIR}/linked.json'"
+printf '{"local": true}\n' > "${LC_DIR}/linked.json"
+test_assert "置き換え後にローカル側へ書き込んでも、dotfiles 側のファイルは変わらない" \
+    "grep -q base '${LC_SRC}'"
+
+printf '{"local": true}\n' > "${LC_DIR}/existing.json"
+installLocalCopy "$LC_SRC" "${LC_DIR}/existing.json" >/dev/null || true
+test_assert "既存の実ファイル (ローカルの変更) は上書きしない" \
+    "grep -q local '${LC_DIR}/existing.json'"
+
+printf '{"other": true}\n' > "${LC_DIR}/other.json"
+ln -s "${LC_DIR}/other.json" "${LC_DIR}/foreign.json"
+installLocalCopy "$LC_SRC" "${LC_DIR}/foreign.json" >/dev/null || true
+test_assert "dotfiles 以外を指すリンクは、利用者の設定として触らない" \
+    "[ -L '${LC_DIR}/foreign.json' ]"
+
+[ -n "$LC_DIR" ] && [ -d "$LC_DIR" ] && rm -rf "$LC_DIR"
+
+# スクリプトの構文チェック (link.d 配下も対象に含める)
 info "=== スクリプト構文チェック ==="
-for script in "${DOTFILES_DIR}/local/bin"/*.sh; do
+for script in "${DOTFILES_DIR}/local/bin"/*.sh "${DOTFILES_DIR}/local/bin/link.d"/*.sh; do
     if [ -f "$script" ]; then
         script_name=$(basename "$script")
         test_assert "${script_name}の構文チェック" "bash -n $script"

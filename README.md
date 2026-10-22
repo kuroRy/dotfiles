@@ -168,11 +168,21 @@ DEBUG=1 make link
 # テンプレートから生成 (make link で自動生成)
 ~/.config/zsh/.zshrc.local      # zsh のローカル設定
 ~/.config/git/config.local      # Git ユーザー情報など
+~/.config/claude/settings.json  # Claude Code 設定 (config/claude/settings.json のコピー)
 ```
 
 テンプレートは以下の場所にあります:
 - `config/zsh/.zshrc.local.template`
 - `config/git/config.local.template`
+- `config/claude/settings.json`
+
+Claude Code の `settings.json` は、Claude Code 自身が書き戻します (auto モードの環境情報など、業務固有の値を含みます)。
+そのためリンクせずコピーで配置し、旧方式のリンクが残っている場合は `make link` で中身を保ったまま実ファイルに置き換えます。
+dotfiles 側を変更したときは、差分を確認して手で反映してください:
+
+```bash
+diff <(jq -S . config/claude/settings.json) <(jq -S 'del(.autoMode)' ~/.config/claude/settings.json)
+```
 
 ## CI/CD
 

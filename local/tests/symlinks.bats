@@ -185,3 +185,13 @@ load test_helper
     fi
     assert_file_exists "${XDG_CONFIG_HOME}/git/config.local"
 }
+
+@test "local config: ~/.config/claude/settings.json is a local copy (not symlink)" {
+    skip_if_ci
+    # Claude Code が書き戻す業務固有の値を dotfiles (public) に入れないため、リンクにしない
+    if [[ ! -e "${XDG_CONFIG_HOME}/claude/settings.json" ]]; then
+        skip "claude settings.json not yet created"
+    fi
+    [[ ! -L "${XDG_CONFIG_HOME}/claude/settings.json" ]]
+    assert_file_exists "${XDG_CONFIG_HOME}/claude/settings.json"
+}
