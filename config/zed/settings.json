@@ -2,6 +2,11 @@
 // Zed の settings.json は JSONC (コメントと末尾カンマを許容)
 {
   // 外観: フォントは wezterm と同じ HackGen Console NF に揃える
+  "agent_servers": {
+    "claude-acp": {
+      "type": "registry"
+    }
+  },
   "theme": "One Dark",
   "buffer_font_family": "HackGen Console NF",
   "buffer_font_fallbacks": ["Menlo"],

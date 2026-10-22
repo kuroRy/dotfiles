@@ -32,6 +32,30 @@ link_config() {
     link_file "$src" "$dest"
 }
 
+# dotfiles を指すリンク切れを掃除する
+# Usage: prune_stale_links <dir>
+# dotfiles から削除・リネームされた項目の取り残しだけを消す。
+# 実ファイル・実ディレクトリと、dotfiles 外を指すリンクには触れない。
+# 隠し項目も対象にする (.p10k.zsh のような取り残しがあるため)。
+# 掃除は補助処理なので、失敗しても本処理を止めない。
+prune_stale_links() {
+    local dir="$1"
+    local link target
+
+    [[ -d "$dir" ]] || return 0
+
+    for link in "$dir"/* "$dir"/.[!.]*; do
+        [[ -L "$link" && ! -e "$link" ]] || continue
+        target=$(readlink "$link")
+        [[ "$target" == "$DOTFILES_DIR"/* ]] || continue
+        if rm -f "$link"; then
+            info "Removed broken symlink: $link"
+        else
+            warning "Failed to remove broken symlink: $link"
+        fi
+    done
+}
+
 # ディレクトリ内のファイル/ディレクトリをリンク
 # Usage: link_dir_contents <src_dir> <dest_dir> [filter] [pattern]
 # filter: file (default), dir, all, exec
@@ -44,6 +68,7 @@ link_dir_contents() {
 
     [[ -d "$src_dir" ]] || return 0
     mkdir -p "$dest_dir"
+    prune_stale_links "$dest_dir"
 
     for item in "$src_dir"/$pattern; do
         [[ -e "$item" ]] || continue
@@ -68,13 +93,22 @@ link_with_dir_prompt() {
 
     # 宛先が実ディレクトリ（シンボリックリンクではない）の場合
     if [[ -d "$dest" && ! -L "$dest" ]]; then
+        # 非対話時 (CI、パイプ、cron) は尋ねずにスキップする
+        # read が rc=1 を返して set -e で link.sh 全体が中断するのを防ぐ
+        if [[ ! -t 0 ]]; then
+            warning "Real directory exists (non-interactive, skipped): $dest"
+            return 0
+        fi
         warning "Real directory exists: $dest"
         printf "  Delete and replace with symlink? [y/N]: "
-        read -r answer
+        read -r answer || answer=""
         case "$answer" in
             [yY]|[yY][eE][sS])
-                rm -rf "$dest"
-                info "Deleted: $dest"
+                # 削除ではなく退避する。誤操作でも元に戻せるようにする
+                local backup
+                backup="${dest}.bak.$(date +%Y%m%d%H%M%S)"
+                mv "$dest" "$backup"
+                info "Moved to backup: $backup"
                 ln -fnsv "$src" "$dest"
                 ;;
             *)
@@ -134,6 +168,8 @@ mkdir -p "$HOME/.local/bin"
 info "linking XDG configuration files"
 
 # Zsh configuration
+# 個別リンクのため link_dir_contents を通らない。取り残しを明示的に掃除する
+prune_stale_links "$XDG_CONFIG_HOME/zsh"
 link_file "$DOTFILES_DIR/config/zsh/.zshenv" "$HOME/.zshenv"
 link_config "zsh/.zshrc"
 link_config "zsh/.zimrc"

@@ -3,8 +3,11 @@ for config in "$ZDOTDIR"/conf.d/*.zsh(N); do
   source "$config"
 done
 
+# zim environment の NO_CLOBBER 下でも >> で新規ファイルを作れるようにする (cmux の履歴追記が失敗するため)
+setopt APPEND_CREATE
+
 # Local customizations (not tracked in git)
-[[ -f "$ZDOTDIR/zshrc.local" ]] && source "$ZDOTDIR/zshrc.local"
+[[ -f "$ZDOTDIR/.zshrc.local" ]] && source "$ZDOTDIR/.zshrc.local"
 # Legacy location fallback
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
@@ -19,4 +22,3 @@ if [[ -n "$ZSH_PROFILE" ]]; then
   zprof
 fi
 export PATH="$HOME/.local/bin:$PATH"
-

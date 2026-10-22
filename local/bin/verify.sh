@@ -204,16 +204,17 @@ fi
 
 # Git設定の検証
 info "=== Git設定検証 ==="
-if git config --global user.name >/dev/null 2>&1; then
-    GIT_USER_NAME=$(git config --global user.name)
+# --global はインクルード先 (config.local) を解決しないため実効値で判定する
+if git config --get user.name >/dev/null 2>&1; then
+    GIT_USER_NAME=$(git config --get user.name)
     success "✓ Git user.name: ${GIT_USER_NAME}"
 else
     warning "⚠ Git user.nameが設定されていません"
     VERIFY_FAILED=$((VERIFY_FAILED + 1))
 fi
 
-if git config --global user.email >/dev/null 2>&1; then
-    GIT_USER_EMAIL=$(git config --global user.email)
+if git config --get user.email >/dev/null 2>&1; then
+    GIT_USER_EMAIL=$(git config --get user.email)
     success "✓ Git user.email: ${GIT_USER_EMAIL}"
 else
     warning "⚠ Git user.emailが設定されていません"
