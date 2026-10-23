@@ -197,9 +197,6 @@ link_config "act/actrc"
 # mise configuration (development tool version manager)
 link_config "mise/config.toml"
 
-# wezterm configuration
-link_config "wezterm"
-
 # AeroSpace configuration (tiling window manager)
 link_config "aerospace/aerospace.toml"
 

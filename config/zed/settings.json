@@ -1,7 +1,7 @@
 // where: config/zed; what: Zed エディタの設定; why: 他エディタ・ターミナルと表示と整形の挙動を揃える
 // Zed の settings.json は JSONC (コメントと末尾カンマを許容)
 {
-  // 外観: フォントは wezterm と同じ HackGen Console NF に揃える
+  // 外観: フォントはターミナルと同じ HackGen Console NF に揃える
   "agent_servers": {
     "claude-acp": {
       "type": "registry"

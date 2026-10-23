@@ -65,16 +65,6 @@ load test_helper
 }
 
 # =============================================================================
-# WezTerm 設定ファイル
-# =============================================================================
-
-@test "wezterm: ~/.config/wezterm/wezterm.lua symlink exists and valid" {
-    skip_if_ci
-    skip_if_no_file "$(get_dotfiles_target config/wezterm/wezterm.lua)"
-    assert_symlink_exists "${XDG_CONFIG_HOME}/wezterm/wezterm.lua"
-}
-
-# =============================================================================
 # Ghostty 設定ファイル
 # =============================================================================
 
