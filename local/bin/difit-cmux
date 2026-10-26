@@ -10,7 +10,7 @@
 # Setup:
 # 1. Install cmux from https://cmux.app/ and move to /Applications/
 #    Change "Socket Control Mode" to "Automation Mode"
-# 2. Install difit: npm install -g difit
+# 2. Install difit: managed by mise (config/mise/config.toml の "npm:difit")
 # 3. This script is automatically symlinked to ~/.local/bin/ by link.sh
 # 4. Bind to Hyper + D via Karabiner Elements
 #
@@ -20,14 +20,20 @@
 # - Detect the current branch and default branch
 # - Show diff against merge-base (for feature branches)
 # - Show diff against HEAD (for default branch or detached HEAD)
-# - Open the result in a cmux browser split at http://localhost:4966/
+# - Open the result in a cmux browser split (port is auto-assigned per run,
+#   so several worktrees can be reviewed in parallel)
 # - Automatically shut down the difit server when the browser pane is closed
 #
 # Reference: https://gist.github.com/azu/cef84c98aeef832d43dfb640c7e321f5
 
 set -euo pipefail
 
+# Karabiner の shell_command は launchd の最小 PATH で動くため、mise の shim を先頭に足す
+# (difit とその実行に必要な node は shim 経由で解決される)
+export PATH="${XDG_DATA_HOME:-$HOME/.local/share}/mise/shims:$PATH"
+
 CMUX="/Applications/cmux.app/Contents/Resources/bin/cmux"
+# 希望ポート。使用中なら difit が空きポートを自動で選ぶ
 DIFIT_PORT=4966
 
 # Verify dependencies
@@ -37,7 +43,7 @@ if [[ ! -x "$CMUX" ]]; then
 fi
 
 if ! command -v difit &>/dev/null; then
-    echo "Error: difit is not installed. Run: npm install -g difit" >&2
+    echo "Error: difit is not installed. Run: mise install" >&2
     exit 1
 fi
 
@@ -73,46 +79,45 @@ if [[ -z "$defaultBranch" ]]; then
     fi
 fi
 
-# Kill any process using the difit port
+# 並列実行時に他のレビューのサーバーを巻き込まないよう、ポートではなく PID で止める
+difitPid=""
 kill_difit() {
-    lsof -ti:"$DIFIT_PORT" | xargs kill 2>/dev/null || true
+    [[ -n "$difitPid" ]] && kill "$difitPid" 2>/dev/null || true
 }
 
 trap kill_difit EXIT INT TERM
 
-difitArgs=(--mode unified --no-open --clean --include-untracked --port "$DIFIT_PORT")
+difitArgs=(--no-open --clean --include-untracked --background --port "$DIFIT_PORT")
 
 if [[ -z "$defaultBranch" ]] || [[ "$currentBranch" == "${defaultBranch#origin/}" ]]; then
     # On the default branch or no remote — diff working directory against HEAD
-    difit working "${difitArgs[@]}" &
+    difitOut=$(difit working "${difitArgs[@]}")
 else
     mergeBase=$(git merge-base HEAD "$defaultBranch" 2>/dev/null || true)
 
     if [[ -z "$mergeBase" ]]; then
-        difit working "${difitArgs[@]}" &
+        difitOut=$(difit working "${difitArgs[@]}")
     else
-        difit "$mergeBase" . "${difitArgs[@]}" &
+        difitOut=$(difit . "$mergeBase" "${difitArgs[@]}")
     fi
 fi
 
-# Wait until the difit server is ready
-timeout=30
-elapsed=0
-while ! curl -s "http://localhost:${DIFIT_PORT}/" >/dev/null 2>&1; do
-    sleep 0.5
-    elapsed=$((elapsed + 1))
-    if [[ $elapsed -ge $((timeout * 2)) ]]; then
-        echo "Error: difit server did not start within ${timeout}s" >&2
-        exit 1
-    fi
-done
+# --background は起動済みサーバーの情報を JSON で返す: {"port":4966,"url":"...","pid":123}
+difitPid=$(grep -o '"pid" *: *[0-9]*' <<<"$difitOut" | grep -o '[0-9]*$' || true)
+difitPort=$(grep -o '"port" *: *[0-9]*' <<<"$difitOut" | grep -o '[0-9]*$' || true)
+
+if [[ -z "$difitPid" || -z "$difitPort" ]]; then
+    echo "Error: could not parse difit output: $difitOut" >&2
+    exit 1
+fi
 
 # Open in a cmux browser split and get the surface ID
-browserSurface=$("$CMUX" --json browser open-split "http://localhost:${DIFIT_PORT}/" | grep -o '"ref" *: *"surface:[^"]*"' | head -1 | grep -o 'surface:[0-9]*')
+browserSurface=$("$CMUX" --json browser open-split "http://localhost:${difitPort}/" | grep -o '"ref" *: *"surface:[^"]*"' | head -1 | grep -o 'surface:[0-9]*')
 
 if [[ -z "$browserSurface" ]]; then
-    echo "Warning: Could not get browser surface ID, difit server running in background" >&2
-    wait
+    echo "Warning: Could not get browser surface ID, difit server running in background (pid: $difitPid)" >&2
+    # 手動でブラウザから開けるよう、終了時に止めない
+    difitPid=""
     exit 0
 fi
 
