@@ -199,6 +199,13 @@ link_config "mise/config.toml"
 
 # AeroSpace configuration (tiling window manager)
 link_config "aerospace/aerospace.toml"
+# 旧方式の ~/.aerospace.toml が残ると、AeroSpace が "Ambiguous config error" で reload-config に失敗する
+# dotfiles を指すリンクのときだけ外す (利用者が置いた実ファイルには触れない)
+legacy_aerospace="$HOME/.aerospace.toml"
+if [[ -L "$legacy_aerospace" && "$(readlink "$legacy_aerospace")" == "$DOTFILES_DIR"/* ]]; then
+    rm -f "$legacy_aerospace"
+    info "Removed legacy symlink: $legacy_aerospace"
+fi
 
 # Zed configuration
 # ディレクトリごとではなく JSON 単位でリンクする

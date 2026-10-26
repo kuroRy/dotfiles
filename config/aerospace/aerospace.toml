@@ -45,6 +45,14 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
     outer.bottom = 8      # 画面下端との隙間
 
 # =============================================================================
+# ワークスペースのモニター固定
+# 番号指定は「左から右」の順で上下配置では意味を持たないため、名前 (正規表現の部分一致) で指定する
+# 名前は `aerospace list-monitors` で確認。該当モニターがなければ次の候補 (main) に置く
+# =============================================================================
+[workspace-to-monitor-force-assignment]
+    T = ['GR4924', 'main']
+
+# =============================================================================
 # キーボード配列
 # =============================================================================
 [key-mapping]
@@ -99,6 +107,8 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
     # -- モニター操作 --
     alt-ctrl-cmd-shift-tab = 'workspace-back-and-forth'  # 直前のワークスペースに戻る
     alt-ctrl-cmd-shift-backtick = 'move-workspace-to-monitor --wrap-around next'  # ワークスペースを次のモニターに移動
+    alt-ctrl-cmd-shift-n = 'focus-monitor --wrap-around next'  # 次のモニターにフォーカス
+    alt-ctrl-cmd-shift-m = 'move-node-to-monitor --focus-follows-window --wrap-around next'  # ウィンドウを次のモニターへ送る
 
     # -- ターミナル (cmux) 専用ワークスペース --
     alt-ctrl-cmd-shift-w = 'workspace T'
