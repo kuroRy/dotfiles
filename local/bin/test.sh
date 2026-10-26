@@ -174,9 +174,10 @@ test_assert "attach は create が書いた worktree に移ってからコマン
     "[ \"\$(env ${WT_ENV} '${WT_BIN}' attach pwd)\" = '${WT_DIR}/wt-feature-x' ]"
 test_assert "create は git リポジトリの外では失敗する" \
     "cd '${WT_DIR}/tmp' && echo x | env ${WT_ENV} '${WT_BIN}' create" 1
-# 失敗が伝わらないと attach が待ち続けるため、timeout で打ち切ってテスト全体が止まらないようにする
+# 失敗が伝わらないと attach が待ち続けるため、5 秒で打ち切ってテスト全体が止まらないようにする
+# (GitHub の macOS ランナーには timeout コマンドがないため、perl の alarm で代用する。打ち切り時は 142 で失敗扱い)
 test_assert "create が失敗したら、attach は待ち続けずにエラーで終わる" \
-    "timeout 5 env ${WT_ENV} '${WT_BIN}' attach true" 1
+    "env ${WT_ENV} perl -e 'alarm 5; exec @ARGV' '${WT_BIN}' attach true" 1
 
 [ -n "$WT_DIR" ] && [ -d "$WT_DIR" ] && rm -rf "$WT_DIR"
 
