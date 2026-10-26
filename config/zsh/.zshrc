@@ -14,8 +14,9 @@ setopt APPEND_CREATE
 # Starship prompt initialization
 eval "$(starship init zsh)"
 
-# GitHub CLI
-export GITHUB_TOKEN=$(gh auth token)
+# GitHub CLI: GITHUB_TOKEN は export しない
+# gh は keyring から自分で読む。export するとシェルから起動した AI エージェントを含む全プロセスにトークンが渡る
+# 一時的に必要なときだけ: GITHUB_TOKEN=$(gh auth token) <command>
 
 # シェル起動時間プロファイリング出力
 if [[ -n "$ZSH_PROFILE" ]]; then

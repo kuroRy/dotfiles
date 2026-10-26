@@ -1,7 +1,5 @@
 # キーバインド
-bindkey '^h' zaw-history
-bindkey '^R' history-incremental-search-backward
-bindkey '^S' history-incremental-search-forward
+# ^R は zim の fzf モジュールが fzf-history-widget に割り当てるため、ここでは上書きしない
 
 # zsh-history-substring-search（↑↓キーで部分一致履歴検索）
 bindkey '^[[A' history-substring-search-up
