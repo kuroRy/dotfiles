@@ -3,7 +3,6 @@
 // 仕様: https://cmux.com/docs/custom-commands (JSONC。変更は Cmd+Shift+, か `cmux reload-config` で反映)
 // 使い方: リポジトリ内のペインでコマンドパレットを開き "Worktree: Claude" などを選ぶ
 //   下の Setup ペインでブランチ名を入力 → git-gtr が worktree を作る → 上のペインでエージェントが起動する
-//   レビューは worktree 内のペインで Hyper+D (difit-cmux)
 {
   "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
   "schemaVersion": 1,

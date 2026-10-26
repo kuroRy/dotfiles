@@ -2,7 +2,7 @@
 node = "24.22.1"
 go = "1.26.10"
 bun = "latest"
-# npm -g だと Node 更新で消えるため mise で版を固定する (difit-cmux が依存)
+# npm -g だと Node 更新で消えるため mise で版を固定する
 "npm:difit" = "5.0.12"
 
 [settings]

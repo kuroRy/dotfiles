@@ -58,7 +58,6 @@ dotfiles/
 │   │   ├── test.sh            # テストスクリプト
 │   │   ├── verify.sh          # 検証スクリプト
 │   │   ├── lint.sh            # Lint スクリプト
-│   │   ├── difit-cmux         # 差分を difit で cmux のブラウザに開く (Hyper+D)
 │   │   └── cmux-worktree      # cmux ワークスペースごとに git-gtr で worktree を作る
 │   ├── share/dotfiles/
 │   │   └── brewfiles/         # Brewfile 群
@@ -162,13 +161,12 @@ DEBUG=1 make link
 - **dnf**: Fedora/RHEL 向け
 - **pacman**: Arch Linux 向け
 
-## 並列開発 (cmux + git-gtr + difit)
+## 並列開発 (cmux + git-gtr)
 
 同一リポジトリでエージェントを並列に動かすときは、「1 ワークスペース = 1 worktree = 1 エージェント」にします。
 
 1. リポジトリ内の cmux ペインでコマンドパレットを開き、`Worktree: Claude` か `Worktree: Codex` を選ぶ
 2. 下の Setup ペインでブランチ名を入力すると、`git gtr new` が worktree を作り、上のペインでエージェントが起動する
-3. レビューは worktree 内のペインで Hyper+D (`difit-cmux`)。ポートは起動ごとに自動で割り当てるので、複数を同時に開ける
 
 AeroSpace では cmux 用のワークスペース `T` をモニター名で固定しています。
 別のモニターで使う場合は `aerospace list-monitors` で名前を確認し、`config/aerospace/aerospace.toml` を変更してください。

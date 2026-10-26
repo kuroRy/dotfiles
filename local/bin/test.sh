@@ -190,9 +190,7 @@ for script in "${DOTFILES_DIR}/local/bin"/*.sh "${DOTFILES_DIR}/local/bin/link.d
     fi
 done
 # 拡張子なしで ~/.local/bin に置くコマンド
-for script in "${DOTFILES_DIR}/local/bin/difit-cmux" "${DOTFILES_DIR}/local/bin/cmux-worktree"; do
-    test_assert "$(basename "$script")の構文チェック" "bash -n $script"
-done
+test_assert "cmux-worktreeの構文チェック" "bash -n ${DOTFILES_DIR}/local/bin/cmux-worktree"
 
 # 設定ファイルの基本チェック（CI環境では実際のファイル配置後のみ）
 info "=== 設定ファイル基本チェック ==="
