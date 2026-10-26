@@ -12,6 +12,9 @@ config-version = 2
 # ログイン時に自動起動する
 start-at-login = true
 
+# 設定ファイルの保存時に自動で再読み込みする (有効にした直後だけ手動の reload-config が必要)
+auto-reload-config = true
+
 # AeroSpace 起動後に実行するコマンド
 after-startup-command = []
 
