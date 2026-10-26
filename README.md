@@ -44,6 +44,8 @@ dotfiles/
 │   ├── iterm2/                # iTerm2 設定
 │   ├── claude/                # Claude Code 設定 & スキル
 │   ├── codex/                 # Codex 設定
+│   ├── cmux/                  # cmux カスタムコマンド (worktree レイアウト)
+│   ├── aerospace/             # AeroSpace (タイル型ウィンドウマネージャ) 設定
 │   └── act/                   # act (GitHub Actions ローカル実行) 設定
 ├── local/
 │   ├── bin/                   # 実行スクリプト群
@@ -55,7 +57,9 @@ dotfiles/
 │   │   ├── mise.sh            # mise セットアップ
 │   │   ├── test.sh            # テストスクリプト
 │   │   ├── verify.sh          # 検証スクリプト
-│   │   └── lint.sh            # Lint スクリプト
+│   │   ├── lint.sh            # Lint スクリプト
+│   │   ├── difit-cmux         # 差分を difit で cmux のブラウザに開く (Hyper+D)
+│   │   └── cmux-worktree      # cmux ワークスペースごとに git-gtr で worktree を作る
 │   ├── share/dotfiles/
 │   │   └── brewfiles/         # Brewfile 群
 │   └── state/dotfiles/
@@ -157,6 +161,17 @@ DEBUG=1 make link
 - **apt**: Debian/Ubuntu 向け
 - **dnf**: Fedora/RHEL 向け
 - **pacman**: Arch Linux 向け
+
+## 並列開発 (cmux + git-gtr + difit)
+
+同一リポジトリでエージェントを並列に動かすときは、「1 ワークスペース = 1 worktree = 1 エージェント」にします。
+
+1. リポジトリ内の cmux ペインでコマンドパレットを開き、`Worktree: Claude` か `Worktree: Codex` を選ぶ
+2. 下の Setup ペインでブランチ名を入力すると、`git gtr new` が worktree を作り、上のペインでエージェントが起動する
+3. レビューは worktree 内のペインで Hyper+D (`difit-cmux`)。ポートは起動ごとに自動で割り当てるので、複数を同時に開ける
+
+AeroSpace では cmux 用のワークスペース `T` をモニター名で固定しています。
+別のモニターで使う場合は `aerospace list-monitors` で名前を確認し、`config/aerospace/aerospace.toml` を変更してください。
 
 ## ローカル設定
 

@@ -1,0 +1,99 @@
+#!/bin/bash
+# where: local/bin/cmux-worktree
+# what: cmux のワークスペースごとに git-gtr で worktree を作り、エージェントをその中で起動する
+# why: 同一リポジトリでエージェントを並列に動かすとき、作業ツリー・ビルド成果物・difit の差分が混ざらないようにするため
+#
+# Dependencies:
+# - git-gtr https://github.com/coderabbitai/git-worktree-runner (brew "coderabbitai/tap/git-gtr")
+# - cmux https://cmux.com/ (CMUX_WORKSPACE_ID を使う)
+#
+# Usage (config/cmux/cmux.json のワークスペースコマンドから呼ばれる):
+#   wt=$(cmux-worktree create) && cd "$wt"   # ブランチ名を尋ねて worktree を作り、パスを stdout に出す
+#   cmux-worktree attach <command> [args...] # create の完了を待ち、worktree へ移って command を exec する
+#
+# create と attach は同じワークスペースの別ペインで同時に起動されるため、
+# ワークスペース単位のマーカーファイルで worktree のパスを受け渡す。
+
+set -eu
+
+marker="${TMPDIR:-/tmp}/cmux-wt-${CMUX_WORKSPACE_ID:-local}"
+# create が失敗したことを attach に伝える値 (パスとしてはあり得ない文字列にする)
+failed_mark="!failed"
+
+usage() {
+  echo "Usage: cmux-worktree create | attach <command> [args...]" >&2
+  exit 2
+}
+
+# attach 側が書きかけを読まないよう、一時ファイルから mv で置き換える
+write_marker() {
+  printf '%s\n' "$1" >"${marker}.tmp"
+  mv "${marker}.tmp" "$marker"
+}
+
+# 失敗を attach に伝えてから終了する (伝えないと attach が待ち続ける)
+fail() {
+  echo "Error: $1" >&2
+  write_marker "$failed_mark"
+  return 1
+}
+
+create() {
+  local root branch default_branch out wt
+
+  rm -f "$marker"
+
+  if ! root=$(git rev-parse --show-toplevel 2>/dev/null); then
+    fail "git リポジトリ内で実行してください (現在: $PWD)"
+  fi
+  if ! command -v git-gtr >/dev/null 2>&1; then
+    fail "git-gtr がありません。brew install coderabbitai/tap/git-gtr"
+  fi
+
+  default_branch="wt-$(date +%m%d-%H%M%S)"
+  read -r -p "Branch name [${default_branch}]: " branch || true
+  branch="${branch:-$default_branch}"
+
+  # --porcelain は確認を省略し、成功時に "key<TAB>value" を stdout へ出す (path / branch / hook_status)
+  # 進捗と postCreate フックの出力は stderr に出るので、そのままペインに表示される
+  if ! out=$(cd "$root" && git gtr new "$branch" --porcelain); then
+    fail "worktree の作成に失敗しました (原因は上の git gtr の出力を確認)"
+  fi
+  wt=$(awk -F'\t' '$1 == "path" { print $2 }' <<<"$out")
+
+  if [[ -z "$wt" || ! -d "$wt" ]]; then
+    fail "worktree のパスを取得できませんでした: $out"
+  fi
+
+  write_marker "$wt"
+  printf '%s\n' "$wt"
+}
+
+attach() {
+  local wt
+
+  [[ $# -ge 1 ]] || usage
+
+  echo "Waiting for the worktree... (Setup ペインでブランチ名を入力してください)" >&2
+  until [[ -s "$marker" ]]; do
+    sleep 0.25
+  done
+  wt=$(cat "$marker")
+
+  if [[ "$wt" == "$failed_mark" ]]; then
+    echo "Error: Setup ペインで worktree の作成に失敗しました" >&2
+    exit 1
+  fi
+
+  cd "$wt"
+  exec "$@"
+}
+
+case "${1:-}" in
+create) create ;;
+attach)
+  shift
+  attach "$@"
+  ;;
+*) usage ;;
+esac

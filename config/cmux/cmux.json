@@ -1,0 +1,78 @@
+// where: config/cmux; what: cmux のカスタムコマンド (コマンドパレットから実行)
+// why: 同一リポジトリでの並列開発を「1 ワークスペース = 1 worktree = 1 エージェント」に揃えるため
+// 仕様: https://cmux.com/docs/custom-commands (JSONC。変更は Cmd+Shift+, か `cmux reload-config` で反映)
+// 使い方: リポジトリ内のペインでコマンドパレットを開き "Worktree: Claude" などを選ぶ
+//   下の Setup ペインでブランチ名を入力 → git-gtr が worktree を作る → 上のペインでエージェントが起動する
+//   レビューは worktree 内のペインで Hyper+D (difit-cmux)
+{
+  "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
+  "schemaVersion": 1,
+  "commands": [
+    {
+      "name": "Worktree: Claude",
+      "description": "git-gtr で新しい worktree を作り、その中で Claude Code を起動する",
+      "keywords": ["worktree", "gtr", "claude", "agent"],
+      "workspace": {
+        "name": "Claude",
+        "layout": {
+          "direction": "vertical",
+          "split": 0.75,
+          "children": [
+            {
+              "pane": {
+                "surfaces": [
+                  { "type": "terminal", "name": "Claude", "command": "\"$HOME/.local/bin/cmux-worktree\" attach claude" }
+                ]
+              }
+            },
+            {
+              "pane": {
+                "surfaces": [
+                  {
+                    "type": "terminal",
+                    "name": "Setup",
+                    "command": "wt=$(\"$HOME/.local/bin/cmux-worktree\" create) && cd \"$wt\"; exec \"${SHELL:-/bin/zsh}\" -l",
+                    "focus": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Worktree: Codex",
+      "description": "git-gtr で新しい worktree を作り、その中で Codex を起動する",
+      "keywords": ["worktree", "gtr", "codex", "agent"],
+      "workspace": {
+        "name": "Codex",
+        "layout": {
+          "direction": "vertical",
+          "split": 0.75,
+          "children": [
+            {
+              "pane": {
+                "surfaces": [
+                  { "type": "terminal", "name": "Codex", "command": "\"$HOME/.local/bin/cmux-worktree\" attach codex" }
+                ]
+              }
+            },
+            {
+              "pane": {
+                "surfaces": [
+                  {
+                    "type": "terminal",
+                    "name": "Setup",
+                    "command": "wt=$(\"$HOME/.local/bin/cmux-worktree\" create) && cd \"$wt\"; exec \"${SHELL:-/bin/zsh}\" -l",
+                    "focus": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

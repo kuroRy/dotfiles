@@ -75,8 +75,14 @@ load test_helper
 }
 
 # =============================================================================
-# AeroSpace 設定ファイル
+# cmux / AeroSpace 設定ファイル
 # =============================================================================
+
+@test "cmux: ~/.config/cmux/cmux.json symlink exists and valid" {
+    skip_if_ci
+    skip_if_no_file "$(get_dotfiles_target config/cmux/cmux.json)"
+    assert_symlink_exists "${XDG_CONFIG_HOME}/cmux/cmux.json"
+}
 
 @test "aerospace: legacy ~/.aerospace.toml does not coexist with XDG config" {
     skip_if_ci

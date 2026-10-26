@@ -150,6 +150,36 @@ test_assert "dotfiles 以外を指すリンクは、利用者の設定として�
 
 [ -n "$LC_DIR" ] && [ -d "$LC_DIR" ] && rm -rf "$LC_DIR"
 
+# cmux-worktree のテスト (git-gtr はスタブに差し替え、一時ディレクトリ内だけで完結させる)
+info "=== cmux-worktree テスト ==="
+WT_DIR="$(cd "$(mktemp -d)" && pwd -P)"
+mkdir -p "${WT_DIR}/stub" "${WT_DIR}/tmp"
+# git gtr new <branch> --porcelain の出力形式 (key<TAB>value) を模す
+cat > "${WT_DIR}/stub/git-gtr" <<'EOS'
+#!/bin/bash
+[ "$1" = new ] || exit 1
+wt="$(git rev-parse --show-toplevel)/../wt-$2"
+git worktree add -q -b "$2" "$wt" >&2
+printf 'path\t%s\nbranch\t%s\nhook_status\tnone\n' "$(cd "$wt" && pwd -P)" "$2"
+EOS
+chmod +x "${WT_DIR}/stub/git-gtr"
+git init -q "${WT_DIR}/repo"
+git -C "${WT_DIR}/repo" -c user.name=t -c user.email=t@example.com commit -q --allow-empty -m init
+WT_ENV="PATH='${WT_DIR}/stub':\$PATH TMPDIR='${WT_DIR}/tmp/' CMUX_WORKSPACE_ID=test"
+WT_BIN="${DOTFILES_DIR}/local/bin/cmux-worktree"
+
+test_assert "create は入力したブランチ名で worktree を作り、そのパスを出力する" \
+    "cd '${WT_DIR}/repo' && [ \"\$(echo feature-x | env ${WT_ENV} '${WT_BIN}' create)\" = '${WT_DIR}/wt-feature-x' ]"
+test_assert "attach は create が書いた worktree に移ってからコマンドを実行する" \
+    "[ \"\$(env ${WT_ENV} '${WT_BIN}' attach pwd)\" = '${WT_DIR}/wt-feature-x' ]"
+test_assert "create は git リポジトリの外では失敗する" \
+    "cd '${WT_DIR}/tmp' && echo x | env ${WT_ENV} '${WT_BIN}' create" 1
+# 失敗が伝わらないと attach が待ち続けるため、timeout で打ち切ってテスト全体が止まらないようにする
+test_assert "create が失敗したら、attach は待ち続けずにエラーで終わる" \
+    "timeout 5 env ${WT_ENV} '${WT_BIN}' attach true" 1
+
+[ -n "$WT_DIR" ] && [ -d "$WT_DIR" ] && rm -rf "$WT_DIR"
+
 # スクリプトの構文チェック (link.d 配下も対象に含める)
 info "=== スクリプト構文チェック ==="
 for script in "${DOTFILES_DIR}/local/bin"/*.sh "${DOTFILES_DIR}/local/bin/link.d"/*.sh; do
@@ -157,6 +187,10 @@ for script in "${DOTFILES_DIR}/local/bin"/*.sh "${DOTFILES_DIR}/local/bin/link.d
         script_name=$(basename "$script")
         test_assert "${script_name}の構文チェック" "bash -n $script"
     fi
+done
+# 拡張子なしで ~/.local/bin に置くコマンド
+for script in "${DOTFILES_DIR}/local/bin/difit-cmux" "${DOTFILES_DIR}/local/bin/cmux-worktree"; do
+    test_assert "$(basename "$script")の構文チェック" "bash -n $script"
 done
 
 # 設定ファイルの基本チェック（CI環境では実際のファイル配置後のみ）

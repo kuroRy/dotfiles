@@ -37,6 +37,7 @@ lint_targets() {
     for f in "${DOTFILES_DIR}/local/bin"/*.sh \
         "${DOTFILES_DIR}/local/bin/link.d"/*.sh \
         "${DOTFILES_DIR}/local/bin/difit-cmux" \
+        "${DOTFILES_DIR}/local/bin/cmux-worktree" \
         "${DOTFILES_DIR}/config/git/hooks"/*; do
         [ -f "$f" ] && printf '%s\n' "$f"
     done

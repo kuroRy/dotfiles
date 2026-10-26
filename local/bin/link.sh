@@ -207,6 +207,10 @@ if [[ -L "$legacy_aerospace" && "$(readlink "$legacy_aerospace")" == "$DOTFILES_
     info "Removed legacy symlink: $legacy_aerospace"
 fi
 
+# cmux configuration (custom commands / workspace layouts)
+# settings.json は cmux 自身が書き込むため管理対象外
+link_config "cmux/cmux.json"
+
 # Zed configuration
 # ディレクトリごとではなく JSON 単位でリンクする
 # (Zed 自身が ~/.config/zed 配下に themes/ や prompts/ を生成するため)
@@ -250,6 +254,13 @@ success "XDG state files linked"
 info "linking executable scripts"
 
 link_dir_contents "$DOTFILES_DIR/local/bin" "$HOME/.local/bin" "exec"
+
+# git-gtr: 同梱の bin/gtr が coreutils の gtr (GNU tr。cask が依存) と衝突して brew link されないため、
+# git-gtr だけを個別にリンクする。opt/ 経由にして brew upgrade で版が変わってもリンクが切れないようにする
+git_gtr_bin="$(getHomebrewPath 2>/dev/null || true)/opt/git-gtr/bin/git-gtr"
+if [[ -x "$git_gtr_bin" ]]; then
+    link_file "$git_gtr_bin" "$HOME/.local/bin/git-gtr"
+fi
 
 success "executable scripts linked"
 
