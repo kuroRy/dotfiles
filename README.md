@@ -168,9 +168,6 @@ DEBUG=1 make link
 1. リポジトリ内の cmux ペインでコマンドパレットを開き、`Worktree: Claude` か `Worktree: Codex` を選ぶ
 2. 下の Setup ペインでブランチ名を入力すると、`git gtr new` が worktree を作り、上のペインでエージェントが起動する
 
-AeroSpace では cmux 用のワークスペース `T` をモニター名で固定しています。
-別のモニターで使う場合は `aerospace list-monitors` で名前を確認し、`config/aerospace/aerospace.toml` を変更してください。
-
 ## ローカル設定
 
 個人設定は `.local` ファイルで管理します。これらのファイルは Git 管理対象外です。
