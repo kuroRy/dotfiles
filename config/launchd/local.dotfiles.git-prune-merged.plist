@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- where: config/launchd (link.d/launchd.sh が ~/Library/LaunchAgents にコピーする) -->
+<!-- what: 毎朝 5:30 に git-prune-merged を実行し、マージ済みのブランチと worktree を削除する -->
+<!-- why: 都度確認して消す手間を省くため。スリープ中に時刻を過ぎた場合は復帰時に実行される -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>local.dotfiles.git-prune-merged</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>-c</string>
+    <!-- plist では ~ や $HOME が展開されないため、bash に展開させる -->
+    <string>exec "$HOME/.local/bin/git-prune-merged" &gt;&gt;"$HOME/Library/Logs/git-prune-merged.log" 2&gt;&amp;1</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>5</integer>
+    <key>Minute</key>
+    <integer>30</integer>
+  </dict>
+</dict>
+</plist>

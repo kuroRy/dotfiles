@@ -195,6 +195,59 @@ test_assert "create が失敗したら、attach は待ち続けずにエラー�
 
 [ -n "$WT_DIR" ] && [ -d "$WT_DIR" ] && rm -rf "$WT_DIR"
 
+# git-prune-merged のテスト (gh はスタブに差し替え、一時ディレクトリ内だけで完結させる)
+info "=== git-prune-merged テスト ==="
+PM_DIR="$(cd "$(mktemp -d)" && pwd -P)"
+mkdir -p "${PM_DIR}/stub"
+# gh pr list --head <branch> の結果として、merged.txt の「ブランチ名 commit」の行から commit を返す
+cat > "${PM_DIR}/stub/gh" <<'EOS'
+#!/bin/bash
+while [ "$#" -gt 0 ]; do [ "$1" = --head ] && branch="$2"; shift; done
+awk -v b="$branch" '$1 == b { print $2 }' "$(dirname "$0")/../merged.txt"
+EOS
+chmod +x "${PM_DIR}/stub/gh"
+PM_GIT="git -c user.name=t -c user.email=t@example.com"
+PM_REPO="${PM_DIR}/repo"
+git init -q -b develop "$PM_REPO"
+$PM_GIT -C "$PM_REPO" commit -q --allow-empty -m init
+# merged-wt: マージ済みで worktree あり / merged: マージ済みで worktree なし
+# dirty: マージ済みだが未追跡のファイルあり / extra: マージ後に commit を積んだ
+for b in merged-wt merged dirty extra; do
+    git -C "$PM_REPO" branch "$b"
+    echo "$b $(git -C "$PM_REPO" rev-parse "$b")" >> "${PM_DIR}/merged.txt"
+done
+git -C "$PM_REPO" worktree add -q "${PM_DIR}/wt-merged-wt" merged-wt
+git -C "$PM_REPO" worktree add -q "${PM_DIR}/wt-dirty" dirty
+touch "${PM_DIR}/wt-dirty/untracked.txt"
+$PM_GIT -C "$PM_REPO" commit -q --allow-empty -m init2
+git -C "$PM_REPO" branch unmerged
+git -C "$PM_REPO" checkout -q extra
+$PM_GIT -C "$PM_REPO" commit -q --allow-empty -m after-merge
+git -C "$PM_REPO" checkout -q develop
+PM_BIN="${DOTFILES_DIR}/local/bin/git-prune-merged"
+
+test_assert "--dry-run では何も削除しない" \
+    "PATH='${PM_DIR}/stub':\$PATH '${PM_BIN}' --dry-run '${PM_REPO}' >/dev/null && git -C '${PM_REPO}' rev-parse -q --verify merged >/dev/null"
+printf '# comment\n%s\n' "$PM_REPO" > "${PM_DIR}/repos"
+test_assert "引数がなければ repos ファイルのリポジトリを処理する" \
+    "PATH='${PM_DIR}/stub':\$PATH GIT_PRUNE_MERGED_REPOS='${PM_DIR}/repos' '${PM_BIN}' --dry-run | grep -qF '=== ${PM_REPO}'"
+test_assert "repos ファイルがなければ何もせず成功する" \
+    "GIT_PRUNE_MERGED_REPOS='${PM_DIR}/none' '${PM_BIN}' >/dev/null"
+test_assert "git-prune-merged が成功する" \
+    "PATH='${PM_DIR}/stub':\$PATH '${PM_BIN}' '${PM_REPO}' >/dev/null"
+test_assert "マージ済みの worktree とブランチを削除する" \
+    "[ ! -d '${PM_DIR}/wt-merged-wt' ] && ! git -C '${PM_REPO}' rev-parse -q --verify merged-wt"
+test_assert "worktree のないマージ済みブランチを削除する" \
+    "! git -C '${PM_REPO}' rev-parse -q --verify merged"
+test_assert "未追跡のファイルがある worktree は残す" \
+    "[ -f '${PM_DIR}/wt-dirty/untracked.txt' ] && git -C '${PM_REPO}' rev-parse -q --verify dirty >/dev/null"
+test_assert "マージ後に commit を積んだブランチは残す" \
+    "git -C '${PM_REPO}' rev-parse -q --verify extra >/dev/null"
+test_assert "PR のないブランチと develop は残す" \
+    "git -C '${PM_REPO}' rev-parse -q --verify unmerged >/dev/null && git -C '${PM_REPO}' rev-parse -q --verify develop >/dev/null"
+
+[ -n "$PM_DIR" ] && [ -d "$PM_DIR" ] && rm -rf "$PM_DIR"
+
 # スクリプトの構文チェック (link.d 配下も対象に含める)
 info "=== スクリプト構文チェック ==="
 for script in "${DOTFILES_DIR}/local/bin"/*.sh "${DOTFILES_DIR}/local/bin/link.d"/*.sh; do
@@ -205,6 +258,12 @@ for script in "${DOTFILES_DIR}/local/bin"/*.sh "${DOTFILES_DIR}/local/bin/link.d
 done
 # 拡張子なしで ~/.local/bin に置くコマンド
 test_assert "cmux-worktreeの構文チェック" "bash -n ${DOTFILES_DIR}/local/bin/cmux-worktree"
+test_assert "git-prune-mergedの構文チェック" "bash -n ${DOTFILES_DIR}/local/bin/git-prune-merged"
+if isRunningOnMac; then
+    for plist in "${DOTFILES_DIR}/config/launchd"/*.plist; do
+        test_assert "$(basename "$plist")の構文チェック" "plutil -lint -s '$plist'"
+    done
+fi
 
 # 設定ファイルの基本チェック（CI環境では実際のファイル配置後のみ）
 info "=== 設定ファイル基本チェック ==="

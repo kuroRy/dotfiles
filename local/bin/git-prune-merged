@@ -1,0 +1,143 @@
+#!/bin/bash
+# where: local/bin/git-prune-merged
+# what: PR がマージ済みのローカルブランチと、その worktree を削除する
+# why: マージ後のブランチや worktree が溜まり、都度確認して消す手間を省くため (launchd から毎朝実行する)
+#
+# Dependencies:
+# - gh https://cli.github.com/ (gh auth login 済みであること)
+#
+# Usage:
+#   git-prune-merged [--dry-run] [<repo>...]
+#   引数がなければ ~/.config/git-prune-merged/repos (1 行 1 パス) を読む
+#
+# 「マージ済み」は、ブランチの HEAD がマージ済み PR の最終 commit (headRefOid) と一致することで判定する。
+# ブランチ名だけで判定すると、同名の古い PR やマージ後に積んだ commit を取り違えて消してしまうため。
+# squash マージでは commit が develop に入らないので、git branch --merged は使えない。
+#
+# 次のものは削除しない:
+# - develop / master / main と、本体の作業ツリーで checkout 中のブランチ
+# - 未コミットの変更か未追跡のファイルがある worktree とそのブランチ
+# - HEAD が PR の最終 commit と一致しないブランチ、gh で PR を確認できなかったブランチ
+
+set -eu
+
+# launchd の PATH には Homebrew が含まれない (テストで gh をスタブに差し替えられるよう末尾に足す)
+export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin"
+
+protected_branches="develop master main"
+repos_file="${GIT_PRUNE_MERGED_REPOS:-${XDG_CONFIG_HOME:-$HOME/.config}/git-prune-merged/repos}"
+dry_run=0
+
+log() {
+  printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"
+}
+
+usage() {
+  echo "Usage: git-prune-merged [--dry-run] [<repo>...]" >&2
+  exit 2
+}
+
+is_protected() {
+  case " $protected_branches " in
+    *" $1 "*) return 0 ;;
+  esac
+  return 1
+}
+
+# PR がマージ済みで、その最終 commit が sha と一致すれば成功する
+# GITHUB_TOKEN がシェルに残っていると権限の狭いトークンが使われるため外す
+is_merged_at() {
+  local branch="$1" sha="$2" heads
+  heads=$(env -u GITHUB_TOKEN gh pr list --head "$branch" --state merged \
+    --json headRefOid --jq '.[].headRefOid') || return 1
+  printf '%s\n' "$heads" | grep -qx "$sha"
+}
+
+delete_branch() {
+  if [ "$dry_run" -eq 1 ]; then
+    log "[dry-run] ブランチを削除: $1"
+  elif git branch -D -q "$1"; then
+    log "ブランチを削除: $1"
+  fi
+}
+
+# 本体以外の worktree を「パス<TAB>ブランチ」で列挙する (detached は除く)
+list_worktrees() {
+  git worktree list --porcelain | awk -v main="$1" '
+    /^worktree / { path = substr($0, 10) }
+    /^branch refs\/heads\// { if (path != main) print path "\t" substr($0, 19) }
+  '
+}
+
+prune_repo() {
+  local repo main_branch wt_branches path branch sha
+  repo=$(git -C "$1" rev-parse --show-toplevel) || return 1
+  cd "$repo"
+  log "=== $repo"
+
+  git worktree prune
+  main_branch=$(git branch --show-current)
+  wt_branches=" "
+
+  while IFS="$(printf '\t')" read -r path branch; do
+    # worktree が 1 つもないとき、ヒアドキュメントの空行が渡ってくる
+    [ -n "$branch" ] || continue
+    wt_branches="$wt_branches$branch "
+    if is_protected "$branch" || [ "$branch" = "$main_branch" ]; then
+      continue
+    fi
+    if [ -n "$(git -C "$path" status --porcelain 2>/dev/null)" ]; then
+      log "スキップ (未コミットの変更か未追跡のファイルがある): $branch"
+      continue
+    fi
+    sha=$(git -C "$path" rev-parse HEAD)
+    if ! is_merged_at "$branch" "$sha"; then
+      continue
+    fi
+    if [ "$dry_run" -eq 1 ]; then
+      log "[dry-run] worktree を削除: $path"
+    elif git worktree remove "$path"; then
+      log "worktree を削除: $path"
+    else
+      log "スキップ (worktree を削除できない): $path"
+      continue
+    fi
+    delete_branch "$branch"
+  done <<EOF
+$(list_worktrees "$repo")
+EOF
+
+  # worktree のないブランチ
+  git for-each-ref --format='%(refname:short) %(objectname)' refs/heads |
+    while read -r branch sha; do
+      if is_protected "$branch" || [ "$branch" = "$main_branch" ]; then
+        continue
+      fi
+      case "$wt_branches" in
+        *" $branch "*) continue ;;
+      esac
+      if is_merged_at "$branch" "$sha"; then
+        delete_branch "$branch"
+      fi
+    done
+}
+
+[ "${1:-}" = "--dry-run" ] && { dry_run=1; shift; }
+if [ "$#" -eq 0 ]; then
+  if [ ! -f "$repos_file" ]; then
+    log "対象リポジトリの設定がない: $repos_file"
+    exit 0
+  fi
+  while IFS= read -r line; do
+    case "$line" in '' | '#'*) continue ;; esac
+    set -- "$@" "${line/#\~/$HOME}"
+  done <"$repos_file"
+  [ "$#" -gt 0 ] || usage
+fi
+
+status=0
+for repo in "$@"; do
+  # 1 つのリポジトリで失敗しても、残りのリポジトリは処理する
+  ( prune_repo "$repo" ) || { log "失敗: $repo"; status=1; }
+done
+exit "$status"
