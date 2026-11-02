@@ -110,6 +110,7 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
     # -- ターミナル (cmux) 専用ワークスペース --
     alt-ctrl-cmd-shift-w = 'workspace T'
+    alt-ctrl-cmd-shift-e = 'move-node-to-workspace --focus-follows-window T'  # ウィンドウを T へ送る
 
     # -- モード切り替え --
     alt-ctrl-cmd-shift-semicolon = 'mode service'  # サービスモードに入る
