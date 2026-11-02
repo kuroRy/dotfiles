@@ -22,11 +22,24 @@
 	colorMoved = default
 
 [merge]
-	conflictstyle = diff3
+	conflictstyle = zdiff3
 
 [rebase]
 	autosquash = true
 	autostash = true
+	updateRefs = true
+
+[rerere]
+	enabled = true
+
+[branch]
+	sort = -committerdate
+
+[commit]
+	verbose = true
+
+[help]
+	autocorrect = prompt
 
 [alias]
 	st = status
