@@ -12,3 +12,12 @@ manaflow-ai/cmux cmux-keyboard-shortcuts
 manaflow-ai/cmux cmux-markdown
 manaflow-ai/cmux cmux-settings
 manaflow-ai/cmux cmux-workspace
+skills-directory/skill-codex codex
+mizchi/skills empirical-prompt-tuning
+vercel-labs/skills find-skills
+anthropics/skills frontend-design
+remotion-dev/skills remotion-best-practices
+vercel-labs/agent-skills web-design-guidelines
+vercel-labs/agent-skills vercel-react-best-practices
+yoshiko-pg/difit difit
+yoshiko-pg/difit difit-review
