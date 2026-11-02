@@ -150,6 +150,20 @@ test_assert "dotfiles 以外を指すリンクは、利用者の設定として�
 
 [ -n "$LC_DIR" ] && [ -d "$LC_DIR" ] && rm -rf "$LC_DIR"
 
+# skills.sh のテスト (npx はスタブに差し替え、受け取った引数を記録する)
+info "=== skills.sh テスト ==="
+SK_DIR="$(cd "$(mktemp -d)" && pwd -P)"
+mkdir -p "${SK_DIR}/stub"
+printf '#!/bin/bash\necho "$*" >> "%s/args.txt"\n' "$SK_DIR" > "${SK_DIR}/stub/npx"
+chmod +x "${SK_DIR}/stub/npx"
+printf '# comment\nowner/a s1\nowner/b s3\n\nowner/a s2\n' > "${SK_DIR}/skills.txt"
+PATH="${SK_DIR}/stub:$PATH" SKILLS_FILE="${SK_DIR}/skills.txt" \
+    "${DOTFILES_DIR}/local/bin/skills.sh" >/dev/null 2>&1 || true
+test_assert "skills.sh はソースごとに skill をまとめて 1 回ずつ npx skills add する" \
+    "[ \"\$(cat '${SK_DIR}/args.txt')\" = \"\$(printf 'skills add owner/a -g -y --skill s1 s2\nskills add owner/b -g -y --skill s3')\" ]"
+
+[ -n "$SK_DIR" ] && [ -d "$SK_DIR" ] && rm -rf "$SK_DIR"
+
 # cmux-worktree のテスト (git-gtr はスタブに差し替え、一時ディレクトリ内だけで完結させる)
 info "=== cmux-worktree テスト ==="
 WT_DIR="$(cd "$(mktemp -d)" && pwd -P)"

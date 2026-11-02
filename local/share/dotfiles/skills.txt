@@ -1,0 +1,14 @@
+# make skills で npx skills add -g するエージェント skill
+# 形式: <ソース> <skill 名>
+manaflow-ai/cmux cmux
+manaflow-ai/cmux cmux-browser
+manaflow-ai/cmux cmux-capture
+manaflow-ai/cmux cmux-cloud-vm
+manaflow-ai/cmux cmux-cua
+manaflow-ai/cmux cmux-custom-sidebar
+manaflow-ai/cmux cmux-customization
+manaflow-ai/cmux cmux-diagnostics
+manaflow-ai/cmux cmux-keyboard-shortcuts
+manaflow-ai/cmux cmux-markdown
+manaflow-ai/cmux cmux-settings
+manaflow-ai/cmux cmux-workspace

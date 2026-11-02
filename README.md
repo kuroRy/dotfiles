@@ -80,6 +80,7 @@ dotfiles/
 | `make link` | XDG 配下へシンボリックリンク作成 |
 | `make defaults` | macOS の defaults 設定 (macOS のみ) |
 | `make packages` | Brewfile からパッケージをインストール |
+| `make skills` | `local/share/dotfiles/skills.txt` の外部 skill をインストール |
 
 ### テスト・検証コマンド
 

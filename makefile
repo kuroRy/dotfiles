@@ -1,4 +1,4 @@
-.PHONY: all init link defaults packages brew brew-dump test lint verify ci functional-test benchmark test-all packages-status
+.PHONY: all init link defaults packages brew brew-dump skills test lint verify ci functional-test benchmark test-all packages-status
 
 all: init link defaults packages
 
@@ -19,6 +19,9 @@ brew: packages
 
 brew-dump:
 	local/bin/packages.sh dump
+
+skills:
+	local/bin/skills.sh
 
 test:
 	local/bin/test.sh
