@@ -21,3 +21,4 @@ vercel-labs/agent-skills web-design-guidelines
 vercel-labs/agent-skills vercel-react-best-practices
 yoshiko-pg/difit difit
 yoshiko-pg/difit difit-review
+nanaism/yomiyasu yomiyasu
