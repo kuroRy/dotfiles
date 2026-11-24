@@ -10,3 +10,6 @@ local/state/dotfiles/backups/**
 *.local
 *.local.json
 settings.local.json
+
+# cmux が cmux.json を書き換えるときのロックファイル
+*.cmux-write.lock
