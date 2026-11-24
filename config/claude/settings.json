@@ -43,38 +43,6 @@
     "defaultMode": "auto"
   },
   "model": "opus",
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cat | jq -r '[\"--title\", .title, \"--body\", .message] | @sh' | xargs /Applications/cmux.app/Contents/Resources/bin/cmux notify"
-          },
-          {
-            "type": "command",
-            "command": "afplay /System/Library/Sounds/Blow.aiff &"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Applications/cmux.app/Contents/Resources/bin/cmux notify --title 'Claude Code' --body '作業が完了しました。'"
-          },
-          {
-            "type": "command",
-            "command": "afplay /System/Library/Sounds/Blow.aiff &"
-          }
-        ]
-      }
-    ]
-  },
   "statusLine": {
     "type": "command",
     "command": "bunx -y ccstatusline@2.2.32",
