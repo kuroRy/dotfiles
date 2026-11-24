@@ -1,4 +1,4 @@
-// where: config/cmux; what: cmux のカスタムコマンド (コマンドパレットから実行)
+// where: config/cmux; what: cmux のアプリ設定とカスタムコマンド (コマンドパレットから実行)
 // why: 同一リポジトリでの並列開発を「1 ワークスペース = 1 worktree = 1 エージェント」に揃えるため
 // 仕様: https://cmux.com/docs/custom-commands (JSONC。変更は Cmd+Shift+, か `cmux reload-config` で反映)
 // 使い方: リポジトリ内のペインでコマンドパレットを開き "Worktree: Claude" などを選ぶ
@@ -6,6 +6,19 @@
 {
   "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
   "schemaVersion": 1,
+  "app": {
+    "appearance": "dark",
+    "appIcon": "dark",
+    "confirmQuit": "never",
+    "goToWorkspaceOrder": "recent",
+    "reorderOnNotification": false
+  },
+  "browser": {
+    "theme": "dark"
+  },
+  "diffViewer": {
+    "defaultLayout": "split"
+  },
   "commands": [
     {
       "name": "Worktree: Claude",
