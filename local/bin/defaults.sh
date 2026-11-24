@@ -129,6 +129,10 @@ defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
 # スペースを複数のディスプレイにまたがって表示
 defaults write com.apple.spaces spans-displays -bool true
 
+# Sound
+## 通知音の音量 (%) - cmux などの通知音を聞き取りやすくするため。defaults の値は % と一致しないので osascript で設定する
+osascript -e 'set volume alert volume 80'
+
 for app in "Dock" \
   "Finder" \
   "SystemUIServer"; do
