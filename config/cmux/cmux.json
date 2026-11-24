@@ -73,5 +73,19 @@
         }
       }
     }
-  ]
+  ],
+  "notifications": {
+    "sound": "Glass",
+    "soundOverrides": {
+      "claude": {
+        "errorStalled": {
+          "sound": "Basso"
+        },
+        "needsInput": {
+          "sound": "Submarine"
+        }
+      }
+    },
+    "soundWhenFocused": true
+  }
 }
